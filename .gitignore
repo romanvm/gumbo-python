@@ -77,3 +77,23 @@ $RECYCLE.BIN/
 
 # Windows shortcuts
 *.lnk
+
+# Eclipse
+Debug/
+Release/
+.settings/
+.project
+.cproject
+
+# Python
+venv/
+__pycache__/
+.eggs/
+build/
+dist/
+*.pyc
+*.pyo
+*.pyd
+
+# PyCharm
+.idea/
