@@ -74,28 +74,17 @@ namespace gumbo_python {
 	};
 
 
-	class parse_html {
+	class Document {
 	private:
 		GumboOutput* output_;
 
 	public:
-		parse_html(const std::string& html) : output_(nullptr) {
+		explicit Document(const std::string& html) : output_(nullptr) {
 			output_ = gumbo_parse(html.c_str());
 		}
 
-		~parse_html() {
-			if (output_ != nullptr) {
-				gumbo_destroy_output(&kGumboDefaultOptions, output_);
-			}
-		}
+		~Document() { gumbo_destroy_output(&kGumboDefaultOptions, output_); }
 
-		HtmlNode enter() { return HtmlNode(output_->root); }
-
-		bool exit(pybind11::object t, pybind11::object v, pybind11::object tb) {
-			gumbo_destroy_output(&kGumboDefaultOptions, output_);
-			output_ = nullptr;
-			return false;
-		}
+		HtmlNode root() const { return output_->root; }
 	};
-
 }
