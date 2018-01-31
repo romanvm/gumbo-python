@@ -9,8 +9,6 @@
 
 #include <iostream>
 
-//#include <algorithm>
-
 namespace gumbo_python {
 
 	const std::array<std::string, 7> node_types = {
@@ -23,6 +21,7 @@ namespace gumbo_python {
 				"template"
 			};
 
+	// NodeVector
 
 	HtmlNode NodeVector::next() {
 		if (index_ >= vector_->length)
@@ -38,20 +37,19 @@ namespace gumbo_python {
 		return HtmlNode(static_cast<GumboNode*>(vector_->data[index]));
 	}
 
+	// HtmlNode
 
 	HtmlNode::HtmlNode(GumboNode* node) : node_(node) {
 		if (node_->type == GUMBO_NODE_ELEMENT || node_->type == GUMBO_NODE_TEMPLATE) {
 			tag_name_ = gumbo_normalized_tagname(node_->v.element.tag);
-			str_ = std::string(node->v.element.original_tag.data, node->v.element.original_tag.length);
+			str_ = "<" + tag_name_ + ">";
 			GumboVector* raw_attributes = &node_->v.element.attributes;
 			for (unsigned int i = 0; i < raw_attributes->length; ++i) {
 				GumboAttribute* attr = static_cast<GumboAttribute*>(raw_attributes->data[i]);
 				attributes_[attr->name] = attr->value;
 			}
-		} else if (node_->type == GUMBO_NODE_TEXT || node_->type == GUMBO_NODE_WHITESPACE) {
-			str_ = node_->v.text.text;
 		} else {
-			str_ = std::string(node_->v.text.original_text.data, node_->v.text.original_text.length);
+			str_ = node_->v.text.text;
 		}
 	}
 
@@ -89,15 +87,7 @@ namespace gumbo_python {
 	}
 
 	std::string HtmlNode::str() {
-		std::cout << "Raw string: '" << str_ << "'" << std::endl;
 		return str_;
-	}
-
-	std::string HtmlNode::repr() {
-		if (node_->type == GUMBO_NODE_ELEMENT || node_->type == GUMBO_NODE_TEMPLATE)
-			return "<HtmlNode " + node_type() + "(" + str_ + ")>";
-		else
-			return "<HtmlNode " + node_type() + "('" + str_ + "')>";
 	}
 
 	unsigned int HtmlNode::offset() {
@@ -119,7 +109,6 @@ namespace gumbo_python {
 	std::vector<HtmlNode> Document::as_vector() {
 		std::vector<HtmlNode> vect;
 		append_node(root(), vect);
-		//std::sort(vect.begin(), vect.end(), comp_offset);
 		return vect;
 	}
 }

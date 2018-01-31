@@ -71,8 +71,6 @@ namespace gumbo_python {
 		unsigned int offset();
 
 		std::string str();
-
-		std::string repr();
 	};
 
 
@@ -81,12 +79,6 @@ namespace gumbo_python {
 		GumboOutput* output_;
 
 		void append_node(HtmlNode node, std::vector<HtmlNode>& vect);
-
-//		struct {
-//			bool operator()(HtmlNode a, HtmlNode b) const {
-//				return a.offset() < b.offset();
-//			}
-//		} comp_offset;
 
 	public:
 		explicit Document(const std::string& html) : output_(nullptr) {
