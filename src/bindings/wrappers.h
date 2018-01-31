@@ -69,6 +69,8 @@ namespace gumbo_python {
 		std::string text();
 
 		unsigned int offset();
+
+		std::string str();
 	};
 
 

@@ -44,14 +44,13 @@ namespace gumbo_python {
 				attributes_[attr->name] = attr->value;
 			}
 		}
-		else if (node_->type == GUMBO_NODE_TEXT || node_->type == GUMBO_NODE_CDATA ||
-				node_->type == GUMBO_NODE_COMMENT || node_->type == GUMBO_NODE_WHITESPACE) {
+		else if (node_->type != GUMBO_NODE_ELEMENT && node_->type != GUMBO_NODE_TEMPLATE) {
 			text_ = node_->v.text.text;
 		}
 	}
 
 	void HtmlNode::check_if_element(const std::string& err_message) {
-		if (node_->type != GUMBO_NODE_ELEMENT || node_->type != GUMBO_NODE_TEMPLATE)
+		if (node_->type != GUMBO_NODE_ELEMENT && node_->type != GUMBO_NODE_TEMPLATE)
 			throw NodeTypeError(err_message);
 	}
 
@@ -61,7 +60,7 @@ namespace gumbo_python {
 	}
 
 	bool HtmlNode::has_chidlren() {
-		if (node_->type != GUMBO_NODE_ELEMENT || node_->type != GUMBO_NODE_TEMPLATE)
+		if (node_->type == GUMBO_NODE_ELEMENT || node_->type == GUMBO_NODE_TEMPLATE)
 			return node_->v.element.children.length > 0;
 		return false;
 	}
@@ -77,11 +76,16 @@ namespace gumbo_python {
 	}
 
 	std::string HtmlNode::text() {
-		if (node_->type == GUMBO_NODE_TEXT || node_->type == GUMBO_NODE_CDATA ||
-				node_->type == GUMBO_NODE_COMMENT || node_->type == GUMBO_NODE_WHITESPACE)
+		if (node_->type != GUMBO_NODE_ELEMENT && node_->type != GUMBO_NODE_TEMPLATE)
 			return text_;
 		else
 			throw NodeTypeError("Node '" + node_type() + "' is not a text node!");
+	}
+
+	std::string HtmlNode::str() {
+		if (node_->type == GUMBO_NODE_ELEMENT || node_->type == GUMBO_NODE_TEMPLATE)
+			return "<HtmlNode " + node_type() + "(<" + tag_name() + ">)>";
+		return "<HtmlNode " + node_type() + "('" + text() + "')>";
 	}
 
 	unsigned int HtmlNode::offset() {

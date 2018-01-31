@@ -31,11 +31,14 @@ PYBIND11_MODULE(_gumbo, m) {
 		.def_property_readonly("attributes", &HtmlNode::attributes)
 		.def_property_readonly("tag_name", &HtmlNode::tag_name)
 		.def_property_readonly("offset", &HtmlNode::offset)
+		.def_property_readonly("text", &HtmlNode::text)
+		.def("__str__", &HtmlNode::str)
+		.def("__repr__", &HtmlNode::str)
 		;
 
 	py::class_<parse_html>(m, "parse_html")
 		.def(py::init<const std::string &>())
-		.def("__enter__", parse_html::enter)
-		.def("__exit__", parse_html::exit)
+		.def("__enter__", &parse_html::enter)
+		.def("__exit__", &parse_html::exit)
 		;
 }
