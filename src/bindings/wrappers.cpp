@@ -7,7 +7,9 @@
 
 #include "wrappers.h"
 
-#include <algorithm>
+#include <iostream>
+
+//#include <algorithm>
 
 namespace gumbo_python {
 
@@ -40,14 +42,16 @@ namespace gumbo_python {
 	HtmlNode::HtmlNode(GumboNode* node) : node_(node) {
 		if (node_->type == GUMBO_NODE_ELEMENT || node_->type == GUMBO_NODE_TEMPLATE) {
 			tag_name_ = gumbo_normalized_tagname(node_->v.element.tag);
+			str_ = std::string(node->v.element.original_tag.data, node->v.element.original_tag.length);
 			GumboVector* raw_attributes = &node_->v.element.attributes;
 			for (unsigned int i = 0; i < raw_attributes->length; ++i) {
 				GumboAttribute* attr = static_cast<GumboAttribute*>(raw_attributes->data[i]);
 				attributes_[attr->name] = attr->value;
 			}
-		}
-		else if (node_->type != GUMBO_NODE_ELEMENT && node_->type != GUMBO_NODE_TEMPLATE) {
-			text_ = node_->v.text.text;
+		} else if (node_->type == GUMBO_NODE_TEXT || node_->type == GUMBO_NODE_WHITESPACE) {
+			str_ = node_->v.text.text;
+		} else {
+			str_ = std::string(node_->v.text.original_text.data, node_->v.text.original_text.length);
 		}
 	}
 
@@ -79,15 +83,21 @@ namespace gumbo_python {
 
 	std::string HtmlNode::text() {
 		if (node_->type != GUMBO_NODE_ELEMENT && node_->type != GUMBO_NODE_TEMPLATE)
-			return text_;
+			return str_;
 		else
 			throw NodeTypeError("Node '" + node_type() + "' is not a text node!");
 	}
 
 	std::string HtmlNode::str() {
+		std::cout << "Raw string: '" << str_ << "'" << std::endl;
+		return str_;
+	}
+
+	std::string HtmlNode::repr() {
 		if (node_->type == GUMBO_NODE_ELEMENT || node_->type == GUMBO_NODE_TEMPLATE)
-			return "<HtmlNode " + node_type() + "(<" + tag_name() + ">)>";
-		return "<HtmlNode " + node_type() + "('" + text() + "')>";
+			return "<HtmlNode " + node_type() + "(" + str_ + ")>";
+		else
+			return "<HtmlNode " + node_type() + "('" + str_ + "')>";
 	}
 
 	unsigned int HtmlNode::offset() {
@@ -95,7 +105,6 @@ namespace gumbo_python {
 			return node_->v.element.start_pos.offset;
 		else
 			return node_->v.text.start_pos.offset;
-		throw NodeTypeError("Node type '" + node_type() + "' does not have offset!");
 	}
 
 	void Document::append_node(HtmlNode node, std::vector<HtmlNode>& vect) {

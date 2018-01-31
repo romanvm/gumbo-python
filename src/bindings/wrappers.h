@@ -49,7 +49,7 @@ namespace gumbo_python {
 		GumboNode* node_;
 		std::string tag_name_;
 		std::unordered_map<std::string, std::string> attributes_;
-		std::string text_;
+		std::string str_;
 
 		void check_if_element(const std::string& err_message);
 
@@ -71,6 +71,8 @@ namespace gumbo_python {
 		unsigned int offset();
 
 		std::string str();
+
+		std::string repr();
 	};
 
 
