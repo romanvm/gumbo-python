@@ -78,6 +78,14 @@ namespace gumbo_python {
 	private:
 		GumboOutput* output_;
 
+		void append_node(HtmlNode node, std::vector<HtmlNode>& vect);
+
+//		struct {
+//			bool operator()(HtmlNode a, HtmlNode b) const {
+//				return a.offset() < b.offset();
+//			}
+//		} comp_offset;
+
 	public:
 		explicit Document(const std::string& html) : output_(nullptr) {
 			output_ = gumbo_parse(html.c_str());
@@ -85,6 +93,8 @@ namespace gumbo_python {
 
 		~Document() { gumbo_destroy_output(&kGumboDefaultOptions, output_); }
 
-		HtmlNode root() const { return output_->root; }
+		HtmlNode root() const { return HtmlNode(output_->root); }
+
+		std::vector<HtmlNode> as_vector();
 	};
 }

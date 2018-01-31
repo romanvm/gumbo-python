@@ -34,11 +34,12 @@ PYBIND11_MODULE(_gumbo, m) {
 		.def_property_readonly("text", &HtmlNode::text)
 		.def("__iter__", &HtmlNode::children)
 		.def("__str__", &HtmlNode::str)
-		//.def("__repr__", &HtmlNode::str)
+		.def("__repr__", &HtmlNode::str)
 		;
 
 	py::class_<Document>(m, "Document")
 		.def(py::init<const std::string &>())
 		.def_property_readonly("root" , &Document::root)
+		.def("as_list", &Document::as_vector)
 		;
 }

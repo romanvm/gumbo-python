@@ -7,6 +7,8 @@
 
 #include "wrappers.h"
 
+#include <algorithm>
+
 namespace gumbo_python {
 
 	const std::array<std::string, 7> node_types = {
@@ -94,5 +96,21 @@ namespace gumbo_python {
 		else
 			return node_->v.text.start_pos.offset;
 		throw NodeTypeError("Node type '" + node_type() + "' does not have offset!");
+	}
+
+	void Document::append_node(HtmlNode node, std::vector<HtmlNode>& vect) {
+		vect.emplace_back(node);
+		if (node.has_chidlren()) {
+			NodeVector children = node.children();
+			for (unsigned int i = 0; i < children.len(); ++i)
+				append_node(children.get_item(i), vect);
+		}
+	}
+
+	std::vector<HtmlNode> Document::as_vector() {
+		std::vector<HtmlNode> vect;
+		append_node(root(), vect);
+		//std::sort(vect.begin(), vect.end(), comp_offset);
+		return vect;
 	}
 }
