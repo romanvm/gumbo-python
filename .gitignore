@@ -100,8 +100,10 @@ dist/
 
 # Visual Studio
 
+.vs/
 *.sln
 *.vcxproj
-*.filter
+*.filters
 *.user
 *.db
+*.suo
