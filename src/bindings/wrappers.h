@@ -12,83 +12,93 @@
 
 namespace gumbo_python {
 
-	extern const std::array<std::string, 7> node_types;
+  extern const std::array<std::string, 7> node_types;
 
-	class NodeTypeError : public std::exception {
-	private:
-		std::string message_;
+#pragma region NodeTypeError
 
-	public:
-		explicit NodeTypeError(const std::string& message) : message_(message) {}
+  class NodeTypeError : public std::exception {
+  private:
+    std::string message_;
 
-		const char* what() const throw() { return message_.c_str(); }
-	};
+  public:
+    explicit NodeTypeError(const std::string& message) : message_(message) {}
 
-	class HtmlNode;
+    const char* what() const throw() { return message_.c_str(); }
+  };
 
-	class NodeVector {
-	private:
-		GumboVector* vector_;
-		unsigned int index_;
+#pragma endregion
+#pragma region NodeVector
 
-	public:
-		explicit NodeVector(GumboVector* vector) : vector_(vector), index_(0) {}
+  class HtmlNode;
 
-		NodeVector* iter() { return this; }
+  class NodeVector {
+  private:
+    GumboVector* vector_;
+    unsigned int index_;
 
-		HtmlNode next();
+  public:
+    explicit NodeVector(GumboVector* vector) : vector_(vector), index_(0) {}
 
-		HtmlNode get_item(unsigned int index);
+    NodeVector* iter() { return this; }
 
-		unsigned int len() { return vector_->length; }
-	};
+    HtmlNode next();
 
+    HtmlNode get_item(unsigned int index);
 
-	class HtmlNode {
-	private:
-		GumboNode* node_;
-		std::string tag_name_;
-		std::unordered_map<std::string, std::string> attributes_;
-		std::string str_;
+    unsigned int len() { return vector_->length; }
+  };
 
-		void check_if_element(const std::string& err_message);
+#pragma endregion
+#pragma region HtmlNode
 
-	public:
-		explicit HtmlNode(GumboNode* node);
+  class HtmlNode {
+  private:
+    GumboNode* node_;
+    std::string tag_name_;
+    std::unordered_map<std::string, std::string> attributes_;
+    std::string str_;
 
-		NodeVector children();
+    void check_if_element(const std::string& err_message);
 
-		bool has_chidlren();
+  public:
+    explicit HtmlNode(GumboNode* node);
 
-		std::string node_type() { return node_types[node_->type]; }
+    NodeVector children();
 
-		std::unordered_map<std::string, std::string>& attributes();
+    bool has_chidlren();
 
-		std::string tag_name();
+    std::string node_type() { return node_types[node_->type]; }
 
-		std::string text();
+    std::unordered_map<std::string, std::string>& attributes();
 
-		unsigned int offset();
+    std::string tag_name();
 
-		std::string str();
-	};
+    std::string text();
 
+    unsigned int offset();
 
-	class Document {
-	private:
-		GumboOutput* output_;
+    std::string str();
+  };
 
-		void append_node(HtmlNode node, std::vector<HtmlNode>& vect);
+#pragma endregion
+#pragma region Document
 
-	public:
-		explicit Document(const std::string& html) : output_(nullptr) {
-			output_ = gumbo_parse(html.c_str());
-		}
+  class Document {
+  private:
+    GumboOutput* output_;
 
-		~Document() { gumbo_destroy_output(&kGumboDefaultOptions, output_); }
+    void append_node(HtmlNode node, std::vector<HtmlNode>& vect);
 
-		HtmlNode root() const { return HtmlNode(output_->root); }
+  public:
+    explicit Document(const std::string& html) : output_(nullptr) {
+      output_ = gumbo_parse(html.c_str());
+    }
 
-		std::vector<HtmlNode> as_vector();
-	};
+    ~Document() { gumbo_destroy_output(&kGumboDefaultOptions, output_); }
+
+    HtmlNode root() const { return HtmlNode(output_->root); }
+
+    std::vector<HtmlNode> as_vector();
+  };
+#pragma endregion
 }
