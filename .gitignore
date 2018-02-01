@@ -97,3 +97,11 @@ dist/
 
 # PyCharm
 .idea/
+
+# Visual Studio
+
+*.sln
+*.vcxproj
+*.filter
+*.user
+*.db
