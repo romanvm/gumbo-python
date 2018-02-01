@@ -99,7 +99,6 @@ dist/
 .idea/
 
 # Visual Studio
-
 .vs/
 *.sln
 *.vcxproj
@@ -107,3 +106,7 @@ dist/
 *.user
 *.db
 *.suo
+
+# Misc.
+ *.log
+ 
