@@ -59,15 +59,19 @@ namespace gumbo_python {
     std::string str_;
 
     void check_if_element(const std::string& err_message);
+    
+    void check_if_null(const std::string& err_message);
 
   public:
     explicit HtmlNode(GumboNode* node);
+
+    HtmlNode parent();
 
     NodeVector children();
 
     bool has_chidlren();
 
-    std::string node_type() { return node_types[node_->type]; }
+    std::string node_type();
 
     std::unordered_map<std::string, std::string>& attributes();
 
@@ -90,7 +94,7 @@ namespace gumbo_python {
     void append_node(HtmlNode node, std::vector<HtmlNode>& vect);
 
   public:
-    explicit Document(const std::string& html) : output_(nullptr) {
+    explicit Document(const std::string& html) {
       output_ = gumbo_parse(html.c_str());
     }
 

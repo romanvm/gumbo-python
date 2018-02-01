@@ -11,14 +11,15 @@
 
 namespace gumbo_python {
 
-  const std::array<std::string, 7> node_types = {
+  const std::array<std::string, 8> node_types = {
         "document",
         "element",
         "text",
         "cdata",
         "comment",
         "whitespace",
-        "template"
+        "template",
+        "null"
       };
 
 #pragma region NodeVector
@@ -41,16 +42,22 @@ namespace gumbo_python {
 #pragma region HtmlNode
 
   HtmlNode::HtmlNode(GumboNode* node) : node_(node) {
-    if (node_->type == GUMBO_NODE_ELEMENT || node_->type == GUMBO_NODE_TEMPLATE) {
-      tag_name_ = gumbo_normalized_tagname(node_->v.element.tag);
-      str_ = "<" + tag_name_ + ">";
-      GumboVector* raw_attributes = &node_->v.element.attributes;
-      for (unsigned int i = 0; i < raw_attributes->length; ++i) {
-        GumboAttribute* attr = static_cast<GumboAttribute*>(raw_attributes->data[i]);
-        attributes_[attr->name] = attr->value;
+    if (node_) {
+      if (node_->type == GUMBO_NODE_ELEMENT || node_->type == GUMBO_NODE_TEMPLATE) {
+        tag_name_ = gumbo_normalized_tagname(node_->v.element.tag);
+        str_ = "<" + tag_name_ + ">";
+        GumboVector* raw_attributes = &node_->v.element.attributes;
+        for (unsigned int i = 0; i < raw_attributes->length; ++i) {
+          GumboAttribute* attr = static_cast<GumboAttribute*>(raw_attributes->data[i]);
+          attributes_[attr->name] = attr->value;
+        }
       }
-    } else {
-      str_ = node_->v.text.text;
+      else {
+        str_ = node_->v.text.text;
+      }
+    }
+    else {
+      str_ = "null";
     }
   }
 
@@ -59,28 +66,49 @@ namespace gumbo_python {
       throw NodeTypeError(err_message);
   }
 
+  void HtmlNode::check_if_null(const std::string& err_message) {
+    if (!node_)
+      throw NodeTypeError(err_message);
+  }
+
+  std::string HtmlNode::node_type() {
+    if (!node_)
+      return "null";
+    return node_types[node_->type];
+  }
+
+  HtmlNode HtmlNode::parent() {
+    check_if_null("null node has no parent!");
+    return HtmlNode(node_->parent);
+  }
+
   NodeVector HtmlNode::children() {
+    check_if_null("null node is not iterable!");
     check_if_element("Node type '" + node_type() + "' is not iterable!");
     return NodeVector(&node_->v.element.children);
   }
 
   bool HtmlNode::has_chidlren() {
+    check_if_null("null node has no children!");
     if (node_->type == GUMBO_NODE_ELEMENT || node_->type == GUMBO_NODE_TEMPLATE)
       return node_->v.element.children.length > 0;
     return false;
   }
 
   std::unordered_map<std::string, std::string>& HtmlNode::attributes() {
+    check_if_null("null node has no attributes!");
     check_if_element("Node type '" + node_type() + "' has no attributes!");
     return attributes_;
   }
 
   std::string HtmlNode::tag_name() {
+    check_if_null("null node has no tag name!");
     check_if_element("Node type '" + node_type() + "' is not a tag!");
     return tag_name_;
   }
 
   std::string HtmlNode::text() {
+    check_if_null("null node has no text!");
     if (node_->type != GUMBO_NODE_ELEMENT && node_->type != GUMBO_NODE_TEMPLATE)
       return str_;
     else
@@ -92,6 +120,7 @@ namespace gumbo_python {
   }
 
   unsigned int HtmlNode::offset() {
+    check_if_null("null node has no offset!");
     if (node_->type == GUMBO_NODE_ELEMENT || node_->type == GUMBO_NODE_TEMPLATE)
       return node_->v.element.start_pos.offset;
     else

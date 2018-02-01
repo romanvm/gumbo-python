@@ -14,6 +14,7 @@ PYBIND11_MODULE(_gumbo, m) {
   m.attr("GUMBO_NODE_COMMENT") = node_types[GUMBO_NODE_COMMENT];
   m.attr("GUMBO_NODE_WHITESPACE") = node_types[GUMBO_NODE_WHITESPACE];
   m.attr("GUMBO_NODE_TEMPLATE") = node_types[GUMBO_NODE_TEMPLATE];
+  m.attr("GUMBO_NODE_NULL") = node_types[6];
 
   py::register_exception<NodeTypeError>(m, "NodeTypeError", PyExc_TypeError);
 
