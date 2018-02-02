@@ -1,108 +1,129 @@
 #pragma once
 
 #include <gumbo/gumbo.h>
-
 #include <pybind11/pybind11.h>
 
 #include <string>
-#include <vector>
 #include <exception>
 #include <unordered_map>
 #include <array>
+#include <memory>
 
 namespace gumbo_python {
 
   extern const std::array<std::string, 7> node_types;
 
-#pragma region NodeTypeError
+  class Node;
 
-  class NodeTypeError : public std::exception {
-  private:
-    std::string message_;
+  using node_ptr = std::unique_ptr<Node>;
 
-  public:
-    explicit NodeTypeError(const std::string& message) : message_(message) {}
-
-    const char* what() const throw() { return message_.c_str(); }
-  };
-
-#pragma endregion
-#pragma region NodeVector
-
-  class HtmlNode;
+  node_ptr make_node(GumboNode* node);
 
   class NodeVector {
   private:
     GumboVector* vector_;
-    unsigned int index_;
+    unsigned int curr_index_ = 0;
 
   public:
-    explicit NodeVector(GumboVector* vector) : vector_(vector), index_(0) {}
+    explicit NodeVector(GumboVector* vector) : vector_(vector) {}
 
+    /// For Python __iter__ method
     NodeVector* iter() { return this; }
 
-    HtmlNode next();
+    /// For Python __next__ method
+    node_ptr next();
 
-    HtmlNode get_item(unsigned int index);
+    /// Get an item from NodeVector by index
+    node_ptr get_item(unsigned int index) const;
 
-    unsigned int len() { return vector_->length; }
+    /// Get NodeVector length
+    unsigned int len() const { return vector_->length; }
   };
 
-#pragma endregion
-#pragma region HtmlNode
 
-  class HtmlNode {
-  private:
+  class Node {
+  protected:
     GumboNode* node_;
-    std::string tag_name_;
-    std::unordered_map<std::string, std::string> attributes_;
     std::string str_;
 
-    void check_if_element(const std::string& err_message);
-    
-    void check_if_null(const std::string& err_message);
-
   public:
-    explicit HtmlNode(GumboNode* node);
+    explicit Node(GumboNode* node) : node_(node) {}
+    virtual ~Node() {};
 
-    HtmlNode parent();
+    /// Get string representation of the node
+    std::string str() const { return str_; }
 
-    NodeVector children();
+    /// Get node type
+    std::string type() const { return node_types[node_->type]; }
 
-    bool has_chidlren();
+    /// Get node's parent
+    node_ptr parent() const { return make_node(node_->parent); }
 
-    std::string node_type();
-
-    std::unordered_map<std::string, std::string>& attributes();
-
-    std::string tag_name();
-
-    std::string text();
-
-    unsigned int offset();
-
-    std::string str();
+    /// Get node offset
+    unsigned int offset() const;
   };
 
-#pragma endregion
-#pragma region Document
+  class TagNode : public Node {
+  public:
+    explicit TagNode(GumboNode* node) : Node(node) {}
+    virtual ~TagNode() {}
 
-  class Document {
+    // Pybind11 does not allow to expose pure virtual classes
+    // so we need to have some implementation
+    virtual NodeVector children() const { return NodeVector(nullptr); }
+  };
+
+  class Document : public TagNode {
+  public:
+    explicit Document(GumboNode* node);
+
+    /// Chid nodes for the Document:
+    /// a html node and any top-level comment nodes.
+    NodeVector children() const override { return NodeVector(&node_->v.document.children); }
+  };
+
+  class Tag : public TagNode {
+  private:
+    std::string tag_name_;
+    std::unordered_map<std::string, std::string> attrs_;
+
+  public:
+    explicit Tag(GumboNode* node);
+
+    std::string tag_name() const { return tag_name_; }
+
+    std::unordered_map<std::string, std::string> attributes() const { return attrs_; }
+
+    NodeVector children() const override { return NodeVector(&node_->v.document.children); }
+
+    /// Returns tag's text content if the tag has only one child
+    /// and this child is a TextNode, otherwise returns nullptr
+    std::unique_ptr<std::string> text() const;
+  };
+
+
+  class Text : public Node {
+  public:
+    explicit Text(GumboNode* node) : Node(node) { str_ = node_->v.text.text; }
+  };
+
+  class Output {
   private:
     GumboOutput* output_;
 
-    void append_node(HtmlNode node, std::vector<HtmlNode>& vect);
-
   public:
-    explicit Document(const std::string& html) {
+    explicit Output(const std::string& html) {
       output_ = gumbo_parse(html.c_str());
     }
 
-    ~Document() { gumbo_destroy_output(&kGumboDefaultOptions, output_); }
+    ~Output() {
+      gumbo_destroy_output(&kGumboDefaultOptions, output_);
+    }
 
-    HtmlNode root() const { return HtmlNode(output_->root); }
+    /// The root <html> node
+    node_ptr root() const { return make_node(output_->root); }
 
-    std::vector<HtmlNode> as_vector();
+    /// Document node representing the HTML document
+    node_ptr document() const { return make_node(output_->document); }
   };
-#pragma endregion
 }
