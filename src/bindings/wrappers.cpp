@@ -1,10 +1,11 @@
 #include "wrappers.h"
 
 namespace py = pybind11;
+using namespace std;
 
 namespace gumbo_python {
 
-  const std::array<std::string, 7> node_types = {
+  const array<string, 7> node_types = {
     "document",
     "element",
     "text",
@@ -54,10 +55,13 @@ namespace gumbo_python {
 
 #pragma region Document
   Document::Document(GumboNode* node) : TagNode(node) {
-    if (node_->v.document.has_doctype)
-      str_ = "<Document " + std::string(node_->v.document.name) + ">";
-    else
+    if (node_->v.document.has_doctype) {
+      doctype_ = string(node_->v.document.name);
+      str_ = "<Document " + doctype_ + ">";
+    }
+    else {
       str_ = "<Document>";
+    }
   }
 #pragma endregion
 
@@ -72,13 +76,37 @@ namespace gumbo_python {
     }
   }
 
-  std::unique_ptr<std::string> Tag::text() const {
+  string_ptr Tag::text() const {
     if (node_->v.element.children.length == 1) {
       GumboNode* child_node = static_cast<GumboNode*>(node_->v.element.children.data[0]);
       if (child_node->type == GUMBO_NODE_TEXT)
-        return std::make_unique<std::string>(child_node->v.text.text);
+        return make_unique<string>(child_node->v.text.text);
     }
     return nullptr;
   }
+
+  py::object Tag::py_text() const {
+    string_ptr txt = text();
+    if (txt)
+      return py::str(*txt);
+    return py::none();
+  }
+#pragma endregion
+
+#pragma region Text
+  string Text::str() const {
+    if (node_->type == GUMBO_NODE_TEXT)
+      return str_;
+    else if (node_->type == GUMBO_NODE_COMMENT)
+      return "<!--" + str_ + "-->";     
+    else
+      return "<![CDATA[" + str_ + "]]>";
+  }
+#pragma endregion
+
+#pragma region parse_html;
+  std::unique_ptr<Output> parse(const std::string& html) {
+    return std::make_unique<Output>(html);
+}
 #pragma endregion
 }
