@@ -7,7 +7,6 @@
 #include <unordered_map>
 #include <array>
 #include <memory>
-#include <functional>
 
 namespace gumbo_python {
 
@@ -16,7 +15,6 @@ namespace gumbo_python {
   class Node;
 
   using node_ptr = std::unique_ptr<Node>;
-  using string_ptr = std::unique_ptr<std::string>;
 
   node_ptr make_node(GumboNode* node);
 
@@ -41,10 +39,27 @@ namespace gumbo_python {
     unsigned int len() const { return vector_->length; }
   };
 
+  class AttributeMap {
+  private:
+    GumboVector * attrs_;
+
+  public:
+    explicit AttributeMap(GumboVector* attrs) : attrs_(attrs) {}
+
+    const char* get_item(const char* attr) const;
+
+    pybind11::object get(const char* attr) const;
+
+    bool contains(const char* attr) const;
+
+    pybind11::dict as_dict() const;
+
+    unsigned int len() const { return attrs_->length; }
+  };
+
   class Node {
   protected:
     GumboNode* node_;
-    std::string str_;
 
   public:
     explicit Node(GumboNode* node) : node_(node) {}
@@ -56,10 +71,7 @@ namespace gumbo_python {
     virtual bool is_tag() const { return false;  }
 
     /// Get string representation of the node
-    virtual std::string str() const { return str_; }
-
-    /// Get text content from the node
-    virtual string_ptr text() const { return nullptr; }
+    virtual std::string str() const { return ""; }
 
     /// Get node type as string
     std::string type() const { return node_types[node_->type]; }
@@ -72,69 +84,52 @@ namespace gumbo_python {
   };
 
   class TagNode : public Node {
+  protected:
+    GumboVector* children_;
+
   public:
-    explicit TagNode(GumboNode* node) : Node(node) {}
+    explicit TagNode(GumboNode* node, GumboVector* children) : Node(node), children_(children) {}
     virtual ~TagNode() {}
 
-    /// Pybind11 does not allow to expose pure virtual classes
-    /// so we need to have some implementation
-    virtual NodeVector children() const { return NodeVector(nullptr); }
+    virtual NodeVector children() const { return NodeVector(children_); }
 
     virtual bool is_tag() const override { return true; }
   };
 
   class Document : public TagNode {
-  private:
-    std::string doctype_;
-
   public:
-    explicit Document(GumboNode* node);
+    explicit Document(GumboNode* node) : TagNode(node, &node->v.document.children) {}
 
     /// Get document doctype. Returns empty string if HTML has no doctype.
-    std::string doctype() const { return doctype_; }
+    const char* doctype() const { return node_->v.document.name; }
 
-    /// Chid nodes for the Document:
-    /// a html node and any top-level comment nodes.
-    NodeVector children() const override {
-      return NodeVector(&node_->v.document.children);
-    }
+    std::string str() const override { return "<!DOCTYPE " + std::string(node_->v.document.name) + ">"; }
   };
-
-  using attrs_t = std::unordered_map<std::string, std::string>;
-  using node_vect_t = std::vector<node_ptr>;
 
   class Tag : public TagNode {
   private:
-    std::string tag_name_;
-    attrs_t attrs_;
+    const char* tag_name_;
 
   public:
-    explicit Tag(GumboNode* node);
-
-    std::string tag_name() const { return tag_name_; }
-
-    attrs_t attributes() const { return attrs_; }
-
-    NodeVector children() const override {
-      return NodeVector(&node_->v.document.children);
+    explicit Tag(GumboNode* node) : TagNode(node, &node->v.element.children) {
+      tag_name_ = gumbo_normalized_tagname(node_->v.element.tag);
     }
 
-    /// Returns tag's text content if the tag has only one child
-    /// and this child is a TextNode, otherwise returns nullptr
-    string_ptr text() const override;
+    const char* tag_name() const { return tag_name_ ; }
 
-    /// Return tag's text as Python str
-    pybind11::object py_text() const;
+    AttributeMap attributes() const { return AttributeMap(&node_->v.element.attributes); }
+
+    std::string str() const override { return "<" + std::string(tag_name_) + ">"; }
   };
 
   class Text : public Node {
   public:
-    explicit Text(GumboNode* node) : Node(node) { str_ = node_->v.text.text; }
+    explicit Text(GumboNode* node) : Node(node) {}
 
     std::string str() const override;
 
-    /// Return text content without comment or cdata markers if any
-    string_ptr text() const override { return std::make_unique<std::string>(str_); }
+    /// Get clean text content without comment or cdata markers if any
+    const char* text() const { return node_->v.text.text; }
   };
 
   class Output {
@@ -142,13 +137,9 @@ namespace gumbo_python {
     GumboOutput* output_;
 
   public:
-    explicit Output(const std::string& html) {
-      output_ = gumbo_parse(html.c_str());
-    }
+    explicit Output(const char* html) { output_ = gumbo_parse(html); }
 
-    ~Output() {
-      gumbo_destroy_output(&kGumboDefaultOptions, output_);
-    }
+    ~Output() { gumbo_destroy_output(&kGumboDefaultOptions, output_); }
 
     /// The root <html> node
     node_ptr root() const { return make_node(output_->root); }
@@ -157,5 +148,5 @@ namespace gumbo_python {
     node_ptr document() const { return make_node(output_->document); }
   };
 
-  std::unique_ptr<Output> parse(const std::string& html);
+  std::unique_ptr<Output> parse(const char* html);
 }

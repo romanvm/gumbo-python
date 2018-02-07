@@ -94,6 +94,7 @@ dist/
 *.pyc
 *.pyo
 *.pyd
+.pytest*/
 
 # PyCharm
 .idea/

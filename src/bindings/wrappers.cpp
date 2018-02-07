@@ -42,6 +42,36 @@ namespace gumbo_python {
   }
 #pragma endregion
 
+#pragma region AttributeMap
+  const char* AttributeMap::get_item(const char* attr) const {
+    GumboAttribute* attr_pair = gumbo_get_attribute(attrs_, attr);
+    if (!attr_pair)
+      throw py::key_error(attr);
+    return attr_pair->value;
+  }
+
+  py::object AttributeMap::get(const char* attr) const {
+    GumboAttribute* attr_pair = gumbo_get_attribute(attrs_, attr);
+    if (!attr_pair)
+      return py::none();
+    return py::str(attr_pair->value);
+  }
+
+  bool AttributeMap::contains(const char* attr) const {
+    return gumbo_get_attribute(attrs_, attr) != nullptr;
+  }
+
+  py::dict AttributeMap::as_dict() const {
+    py::dict attr_dict;
+    for (unsigned int i = 0; i < attrs_->length; ++i) {
+      GumboAttribute* attr_pair = static_cast<GumboAttribute*>(attrs_->data[i]);
+      attr_dict[attr_pair->name] = attr_pair->value;
+    }
+    return attr_dict;
+  }
+
+#pragma endregion
+
 #pragma region Node
   unsigned int Node::offset() const {
     if (node_->type == GUMBO_NODE_DOCUMENT)
@@ -53,60 +83,23 @@ namespace gumbo_python {
   }
 #pragma endregion
 
-#pragma region Document
-  Document::Document(GumboNode* node) : TagNode(node) {
-    if (node_->v.document.has_doctype) {
-      doctype_ = string(node_->v.document.name);
-      str_ = "<Document " + doctype_ + ">";
-    }
-    else {
-      str_ = "<Document>";
-    }
-  }
-#pragma endregion
-
-#pragma region Tag
-  Tag::Tag(GumboNode* node) : TagNode(node) {
-    tag_name_ = gumbo_normalized_tagname(node_->v.element.tag);
-    str_ = "<" + tag_name_ + ">";
-    GumboVector* raw_attributes = &node_->v.element.attributes;
-    for (unsigned int i = 0; i < raw_attributes->length; ++i) {
-      GumboAttribute* attr = static_cast<GumboAttribute*>(raw_attributes->data[i]);
-      attrs_[attr->name] = attr->value;
-    }
-  }
-
-  string_ptr Tag::text() const {
-    if (node_->v.element.children.length == 1) {
-      GumboNode* child_node = static_cast<GumboNode*>(node_->v.element.children.data[0]);
-      if (child_node->type == GUMBO_NODE_TEXT)
-        return make_unique<string>(child_node->v.text.text);
-    }
-    return nullptr;
-  }
-
-  py::object Tag::py_text() const {
-    string_ptr txt = text();
-    if (txt)
-      return py::str(*txt);
-    return py::none();
-  }
-#pragma endregion
-
 #pragma region Text
   string Text::str() const {
+    string str{ node_->v.text.text };
     if (node_->type == GUMBO_NODE_TEXT)
-      return str_;
+      return str;
+    else if (node_->type == GUMBO_NODE_WHITESPACE)
+      return "<Whitespace '" + str + "'>";
     else if (node_->type == GUMBO_NODE_COMMENT)
-      return "<!--" + str_ + "-->";     
+      return "<!--" + str + "-->";     
     else
-      return "<![CDATA[" + str_ + "]]>";
+      return "<![CDATA[" + str + "]]>";
   }
 #pragma endregion
 
-#pragma region parse_html;
-  std::unique_ptr<Output> parse(const std::string& html) {
-    return std::make_unique<Output>(html);
+#pragma region parse;
+  unique_ptr<Output> parse(const char* html) {
+    return make_unique<Output>(html);
 }
 #pragma endregion
 }

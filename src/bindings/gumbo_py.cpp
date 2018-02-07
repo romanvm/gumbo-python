@@ -8,6 +8,17 @@ namespace py = pybind11;
 
 PYBIND11_MODULE(_gumbo, m) {
 
+  m.attr("__all__") = std::vector<std::string>{
+    "GUMBO_NODE_DOCUMENT",
+    "GUMBO_NODE_ELEMENT",
+    "GUMBO_NODE_TEXT",
+    "GUMBO_NODE_CDATA",
+    "GUMBO_NODE_COMMENT",
+    "GUMBO_NODE_WHITESPACE",
+    "parse",
+    "GUMBO_NODE_TEMPLATE"
+  };
+
   m.attr("GUMBO_NODE_DOCUMENT") = node_types[GUMBO_NODE_DOCUMENT];
   m.attr("GUMBO_NODE_ELEMENT") = node_types[GUMBO_NODE_ELEMENT];
   m.attr("GUMBO_NODE_TEXT") = node_types[GUMBO_NODE_TEXT];
@@ -23,10 +34,17 @@ PYBIND11_MODULE(_gumbo, m) {
     .def("__len__", &NodeVector::len)
     ;
 
+  py::class_<AttributeMap>(m, "AttributeMap")
+    .def("get", &AttributeMap::get)
+    .def("as_dict", &AttributeMap::as_dict)
+    .def("__getitem__", &AttributeMap::get_item)
+    .def("__contains__", &AttributeMap::contains)
+    .def("__len__", &AttributeMap::len)
+    ;
+
   py::class_<Node>(m, "Node")
     .def_property_readonly("parent", &Node::parent)
     .def_property_readonly("is_tag", &Node::is_tag)
-    .def_property_readonly("text", &Node::text)
     .def_property_readonly("type", &Node::type)
     .def_property_readonly("offset", &Node::offset)
     .def("__str__", &Node::str)
@@ -34,20 +52,20 @@ PYBIND11_MODULE(_gumbo, m) {
 
   py::class_<TagNode, Node>(m, "TagNode")
     .def_property_readonly("is_tag", &TagNode::is_tag)
+    .def_property_readonly("children", &TagNode::children)
     ;
 
   py::class_<Document, TagNode>(m, "Document")
     .def_property_readonly("doctype", &Document::doctype)
-    .def_property_readonly("children", &Document::children)
-    .def("__iter__", &Document::children)
+    //.def_property_readonly("children", &Document::children)
+    .def("__str__", &Document::str)
     ;
 
   py::class_<Tag, TagNode>(m, "Tag")
     .def_property_readonly("tag_name", &Tag::tag_name)
     .def_property_readonly("attributes", &Tag::attributes)
-    .def_property_readonly("children", &Tag::children)
-    .def_property_readonly("text", &Tag::py_text)
-    .def("__iter__", &TagNode::children)
+    //.def_property_readonly("children", &Tag::children)
+    .def("__str__", &Tag::str)
     ;
 
   py::class_<Text, Node>(m, "TextNode")
@@ -56,7 +74,6 @@ PYBIND11_MODULE(_gumbo, m) {
     ;
 
   py::class_<Output>(m, "Output")
-    .def(py::init<std::string>())
     .def_property_readonly("root", &Output::root)
     .def_property_readonly("document", &Output::document)
     ;
