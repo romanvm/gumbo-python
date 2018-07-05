@@ -7,6 +7,8 @@
 #include <unordered_map>
 #include <array>
 #include <memory>
+#include <regex>
+#include <functional>
 
 namespace gumbo_python {
 
@@ -41,7 +43,7 @@ namespace gumbo_python {
 
   class AttributeMap {
   private:
-    GumboVector * attrs_;
+    GumboVector* attrs_;
 
   public:
     explicit AttributeMap(GumboVector* attrs) : attrs_(attrs) {}
@@ -73,11 +75,8 @@ namespace gumbo_python {
     /// Get string representation of the node
     virtual std::string str() const { return ""; }
 
-    /// Get node type as string
-    std::string type() const { return node_types[node_->type]; }
-
-    /// Get node native type as int
-    int int_type() const { return node_->type; }
+    /// Get node type as int
+    int type() const { return node_->type; }
 
     /// Get node offset
     unsigned int offset() const;
@@ -88,7 +87,7 @@ namespace gumbo_python {
     GumboVector* children_;
 
   public:
-    explicit TagNode(GumboNode* node, GumboVector* children) : Node(node), children_(children) {}
+    TagNode(GumboNode* node, GumboVector* children) : Node(node), children_(children) {}
     virtual ~TagNode() {}
 
     virtual NodeVector children() const { return NodeVector(children_); }
