@@ -59,14 +59,12 @@ PYBIND11_MODULE(_gumbo, m) {
 
   py::class_<Document, TagNode>(m, "Document")
     .def_property_readonly("doctype", &Document::doctype)
-    //.def_property_readonly("children", &Document::children)
     .def("__str__", &Document::str)
     ;
 
   py::class_<Tag, TagNode>(m, "Tag")
     .def_property_readonly("tag_name", &Tag::tag_name)
     .def_property_readonly("attributes", &Tag::attributes)
-    //.def_property_readonly("children", &Tag::children)
     .def("__str__", &Tag::str)
     ;
 
