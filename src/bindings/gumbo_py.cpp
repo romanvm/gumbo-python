@@ -19,13 +19,15 @@ PYBIND11_MODULE(_gumbo, m) {
     "parse"
   };
 
-  m.attr("GUMBO_NODE_DOCUMENT") = GUMBO_NODE_DOCUMENT;
-  m.attr("GUMBO_NODE_ELEMENT") = GUMBO_NODE_ELEMENT;
-  m.attr("GUMBO_NODE_TEXT") = GUMBO_NODE_TEXT;
-  m.attr("GUMBO_NODE_CDATA") = GUMBO_NODE_CDATA;
-  m.attr("GUMBO_NODE_COMMENT") = GUMBO_NODE_COMMENT;
-  m.attr("GUMBO_NODE_WHITESPACE") = GUMBO_NODE_WHITESPACE;
-  m.attr("GUMBO_NODE_TEMPLATE") = GUMBO_NODE_TEMPLATE;
+  py::enum_<GumboNodeType>(m, "GumboNodeType", py::arithmetic(), "Gumbo node types")
+    .value("GUMBO_NODE_DOCUMENT", GumboNodeType::GUMBO_NODE_DOCUMENT)
+    .value("GUMBO_NODE_ELEMENT", GumboNodeType::GUMBO_NODE_ELEMENT)
+    .value("GUMBO_NODE_TEXT", GumboNodeType::GUMBO_NODE_TEXT)
+    .value("GUMBO_NODE_CDATA", GumboNodeType::GUMBO_NODE_CDATA)
+    .value("GUMBO_NODE_COMMENT", GumboNodeType::GUMBO_NODE_COMMENT)
+    .value("GUMBO_NODE_WHITESPACE", GumboNodeType::GUMBO_NODE_WHITESPACE)
+    .value("GUMBO_NODE_TEMPLATE", GumboNodeType::GUMBO_NODE_TEMPLATE)
+    .export_values();
 
   py::class_<NodeVector>(m, "NodeVector")
     .def("__iter__", &NodeVector::iter, py::return_value_policy::reference_internal)

@@ -12,8 +12,6 @@
 
 namespace gumbo_python {
 
-  extern const std::array<std::string, 7> node_types;
-
   class Node;
 
   using node_ptr = std::unique_ptr<Node>;
