@@ -5,16 +5,6 @@ using namespace std;
 
 namespace gumbo_python {
 
-  const array<string, 7> node_types = {
-    "document",
-    "element",
-    "text",
-    "cdata",
-    "comment",
-    "whitespace",
-    "template"
-  };
-
   node_ptr make_node(GumboNode* node) {
     if (!node)
       return nullptr;

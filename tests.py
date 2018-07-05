@@ -57,7 +57,7 @@ def test_document(document):
     document = output.document
     assert document.parent is None
     assert document.is_tag
-    assert document.type == 'document'
+    assert document.type == gumbo.GUMBO_NODE_DOCUMENT
     assert document.doctype == 'html'
     assert document.offset == 0
     document.children
@@ -67,7 +67,7 @@ def test_document(document):
 def test_tag(root_tag):
     assert root_tag.parent is not None
     assert root_tag.is_tag
-    assert root_tag.type == 'element'
+    assert root_tag.type == gumbo.GUMBO_NODE_ELEMENT
     assert root_tag.tag_name == 'html'
     assert root_tag.attributes
     assert root_tag.children
@@ -96,13 +96,13 @@ def test_chidlren(children):
 def test_text(text):
     assert text.parent is not None
     assert not text.is_tag
-    assert text.type == 'text'
+    assert text.type == gumbo.GUMBO_NODE_TEXT
     assert text.text == 'Lorem Ipsum'
     assert str(text) == 'Lorem Ipsum'
 
 
 def test_comment(comment):
-    assert comment.type == 'comment'
+    assert comment.type == gumbo.GUMBO_NODE_COMMENT
     assert comment.text == ' body comment '
     assert str(comment) == '<!-- body comment -->'
 

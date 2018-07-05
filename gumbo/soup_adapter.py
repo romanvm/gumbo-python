@@ -36,15 +36,15 @@ def _add_next_prev_pointers(soup_listing):
             node.previous_element = nodes[i - 1]
 
 
-_HANDLERS = {
-    'document': _add_document,
-    'element': _add_element,
-    'text': _add_text(NavigableString),
-    'cdata': _add_text(CData),
-    'comment': _add_text(Comment),
-    'whitespace': _add_text(NavigableString),
-    'template': _add_element,
-    }
+_HANDLERS = (
+    _add_document,
+    _add_element,
+    _add_text(NavigableString),
+    _add_text(CData),
+    _add_text(Comment),
+    _add_text(NavigableString),
+    _add_element,
+    )
 
 
 def _add_node(soup, node, soup_listing):
