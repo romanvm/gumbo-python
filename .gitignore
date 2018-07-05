@@ -209,6 +209,5 @@ venv.bak/
 .vscode/
 
 # Misc.
- *.log
  *.sqlite
  *.sqlite3
