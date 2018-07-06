@@ -68,7 +68,7 @@ namespace gumbo_python {
     /// Get node's parent
     node_ptr parent() const { return make_node(node_->parent); }
 
-    virtual bool is_tag() const { return false;  }
+    virtual bool is_tag() const { return false; }
 
     /// Get string representation of the node
     virtual std::string str() const { return ""; }
@@ -78,6 +78,9 @@ namespace gumbo_python {
 
     /// Get node offset
     unsigned int offset() const;
+
+    /// Get node index within parent
+    size_t index_within_parent() { return node_->index_within_parent; }
   };
 
   class TagNode : public Node {

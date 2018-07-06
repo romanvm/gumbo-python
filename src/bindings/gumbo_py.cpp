@@ -49,6 +49,7 @@ PYBIND11_MODULE(_gumbo, m) {
     .def_property_readonly("is_tag", &Node::is_tag)
     .def_property_readonly("type", &Node::type)
     .def_property_readonly("offset", &Node::offset)
+    .def_property_readonly("index_within_parent", &Node::index_within_parent)
     .def("__str__", &Node::str)
     ;
 
