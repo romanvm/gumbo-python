@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "e7e3de556120596bb8b851f056c2fb28b8eb0f870b8c5f36d7d24316ceb1dcc9"
+            "sha256": "c07ed899e8dd5422acbb49d3ef3f5a2999ce26c50c665ada9f1223f66fa433c2"
         },
         "pipfile-spec": 6,
         "requires": {},
@@ -28,6 +28,14 @@
             ],
             "index": "pypi",
             "version": "==0.0.1"
+        },
+        "pybind11": {
+            "hashes": [
+                "sha256:7f2847016313068f6fc24e8996b30345b1b8ceb74de7ea45eb2c0fa9f8fa639d",
+                "sha256:87ff3ae777d9326349af5272974581270b2a0909b2392dc0cc57eb28ce23bcc3"
+            ],
+            "index": "pypi",
+            "version": "==2.2.3"
         }
     },
     "develop": {
@@ -58,6 +66,7 @@
                 "sha256:b9c40e9750f3d77e6e4d441d8b0266cf555e7cdabdcff33c4fd06366ca761ef8",
                 "sha256:ec9ef8f4a9bc6f71eec99e1806bfa2de401650d996c59330782b89a5555c1497"
             ],
+            "markers": "python_version != '3.2.*' and python_version != '3.0.*' and python_version != '3.1.*' and python_version >= '2.7' and python_version != '3.3.*'",
             "version": "==4.3.4"
         },
         "lazy-object-proxy": {
@@ -115,6 +124,7 @@
                 "sha256:d345c8fe681115900d6da8d048ba67c25df42973bda370783cd58826442dcd7c",
                 "sha256:e160a7fcf25762bb60efc7e171d4497ff1d8d2d75a3d0df7a21b76821ecbf5c5"
             ],
+            "markers": "python_version != '3.2.*' and python_version != '3.0.*' and python_version != '3.1.*' and python_version >= '2.7' and python_version != '3.3.*'",
             "version": "==0.6.0"
         },
         "py": {
@@ -122,6 +132,7 @@
                 "sha256:3fd59af7435864e1a243790d322d763925431213b6b8529c6ca71081ace3bbf7",
                 "sha256:e31fb2767eb657cbde86c454f02e99cb846d3cd9d61b318525140214fdc0e98e"
             ],
+            "markers": "python_version != '3.2.*' and python_version != '3.0.*' and python_version != '3.1.*' and python_version >= '2.7' and python_version != '3.3.*'",
             "version": "==1.5.4"
         },
         "pylint": {

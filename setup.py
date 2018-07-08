@@ -8,6 +8,21 @@ __version__ = '0.0.1'
 
 this_dir = os.path.dirname(os.path.abspath(__file__))
 
+
+class get_pybind_include(object):
+    """Helper class to determine the pybind11 include path
+    The purpose of this class is to postpone importing pybind11
+    until it is actually installed, so that the ``get_include()``
+    method can be invoked. """
+
+    def __init__(self, user=False):
+        self.user = user
+
+    def __str__(self):
+        import pybind11
+        return pybind11.get_include(self.user)
+
+
 ext_modules = [
     Extension(
         'gumbo._gumbo',
@@ -27,6 +42,9 @@ ext_modules = [
             'src/bindings/gumbo_py.cpp',
             ],
         include_dirs=[
+            # Path to pybind11 headers
+            get_pybind_include(),
+            get_pybind_include(user=True),
             os.path.join(this_dir, 'src'),
         ],
         language='c++'
@@ -98,7 +116,7 @@ setup(
     long_description='',
     packages=['gumbo'],
     ext_modules=ext_modules,
-    setup_requires=['pytest-runner'],
+    setup_requires=['pybind11>=2.2', 'pytest-runner'],
     install_requires=[],
     # test_suite='tests_gumbo',
     tests_require=['pytest', 'bs4'],
