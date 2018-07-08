@@ -4,7 +4,7 @@ import gumbo
 HTML = b'''<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
     "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 <!-- top-level-comment -->
-<html lang="en">
+<html xmlns="http://www.w3.org/1999/xhtml/" xml:lang="en" lang="en-us">
 <head>
     <meta charset="UTF-8">
     <title>Lorem Ipsum</title>
@@ -17,6 +17,9 @@ HTML = b'''<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
         <strong>Fusce sed enim ac urna<br>tincidunt egestas sed nec urna.</strong>
     </p>
     <p id="p3" class="cdata"><![CDATA[Sed efficitur bibendum euismod.]]></p>
+    <p xmlns:xlink="http://www.w3.org/xlink" class="spam" xlink:href="http://www.google.com">
+        This is used to test attribute namespaces.
+    </p>
 </body>
 </html>'''
 
@@ -83,12 +86,16 @@ def test_tag(root_tag):
 
 def test_attributes(attributes):
     assert 'lang' in attributes
-    assert attributes.get('lang') == 'en'
-    assert attributes['lang'] == 'en'
+    assert attributes.get('lang') == 'en-us'
+    assert attributes['lang'] == 'en-us'
     assert 'foo' not in attributes
     assert attributes.get('foo') is None
-    assert len(attributes) == 1
-    assert attributes.as_dict() == {'lang': 'en'}
+    assert len(attributes) == 3
+    assert attributes.as_dict() == {
+        'xmlns': 'http://www.w3.org/1999/xhtml/',
+        'xml:lang': 'en',
+        'lang': 'en-us'
+        }
 
 
 def test_chidlren(children):
