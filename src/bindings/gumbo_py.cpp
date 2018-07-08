@@ -16,8 +16,14 @@ PYBIND11_MODULE(_gumbo, m) {
     "GUMBO_NODE_COMMENT",
     "GUMBO_NODE_WHITESPACE",
     "GUMBO_NODE_TEMPLATE",
+    "GUMBO_NAMESPACE_HTML",
+    "GUMBO_NAMESPACE_SVG",
+    "GUMBO_NAMESPACE_MATHML",
+    "TAG_NAMESPACES",
     "parse"
   };
+
+  m.attr("TAG_NAMESPACES") = tag_namespaces;
 
   py::enum_<GumboNodeType>(m, "GumboNodeType", py::arithmetic(), "Gumbo node types")
     .value("GUMBO_NODE_DOCUMENT", GumboNodeType::GUMBO_NODE_DOCUMENT)
@@ -27,7 +33,15 @@ PYBIND11_MODULE(_gumbo, m) {
     .value("GUMBO_NODE_COMMENT", GumboNodeType::GUMBO_NODE_COMMENT)
     .value("GUMBO_NODE_WHITESPACE", GumboNodeType::GUMBO_NODE_WHITESPACE)
     .value("GUMBO_NODE_TEMPLATE", GumboNodeType::GUMBO_NODE_TEMPLATE)
-    .export_values();
+    .export_values()
+    ;
+
+  py::enum_<GumboNamespaceEnum>(m, "GumboNamespaceEnum", py::arithmetic(), "Gumbo namespace types")
+    .value("GUMBO_NAMESPACE_HTML", GumboNamespaceEnum::GUMBO_NAMESPACE_HTML)
+    .value("GUMBO_NAMESPACE_SVG", GumboNamespaceEnum::GUMBO_NAMESPACE_SVG)
+    .value("GUMBO_NAMESPACE_MATHML", GumboNamespaceEnum::GUMBO_NAMESPACE_MATHML)
+    .export_values()
+    ;
 
   py::class_<NodeVector>(m, "NodeVector")
     .def("__iter__", &NodeVector::iter, py::return_value_policy::reference_internal)
@@ -66,6 +80,7 @@ PYBIND11_MODULE(_gumbo, m) {
   py::class_<Tag, TagNode>(m, "Tag")
     .def_property_readonly("tag_name", &Tag::tag_name)
     .def_property_readonly("attributes", &Tag::attributes)
+    .def_property_readonly("tag_namespace", &Tag::tag_namespace)
     .def("__str__", &Tag::str)
     ;
 

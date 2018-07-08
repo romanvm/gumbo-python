@@ -12,6 +12,8 @@
 
 namespace gumbo_python {
 
+  extern std::array<std::string, 3> tag_namespaces;
+
   class Node;
 
   using node_ptr = std::unique_ptr<Node>;
@@ -120,6 +122,8 @@ namespace gumbo_python {
     AttributeMap attributes() const { return AttributeMap(&node_->v.element.attributes); }
 
     std::string str() const override { return "<" + std::string(tag_name_) + ">"; }
+
+    int tag_namespace() { return node_->v.element.tag_namespace; }
   };
 
   class Text : public Node {

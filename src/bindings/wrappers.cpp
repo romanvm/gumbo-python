@@ -4,7 +4,17 @@ namespace py = pybind11;
 using namespace std;
 
 namespace gumbo_python {
+#pragma region namespaces
 
+array<string, 3> tag_namespaces = {
+  "http://www.w3.org/1999/xhtml",
+  "http://www.w3.org/2000/svg",
+  "http://www.w3.org/1998/Math/MathML"
+};
+
+#pragma endregion
+
+#pragma region make_node
   node_ptr make_node(GumboNode* node) {
     if (!node)
       return nullptr;
@@ -15,6 +25,7 @@ namespace gumbo_python {
     else
       return std::make_unique<Text>(node);
   }
+#pragma endregion
 
 #pragma region NodeVector
   node_ptr NodeVector::next() {

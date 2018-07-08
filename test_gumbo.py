@@ -73,6 +73,8 @@ def test_tag(root_tag):
     assert root_tag.children
     assert root_tag.offset == 43
     assert str(root_tag) == '<html>'
+    assert root_tag.tag_namespace == gumbo.GUMBO_NAMESPACE_HTML
+    assert gumbo.TAG_NAMESPACES[root_tag.tag_namespace] == 'http://www.w3.org/1999/xhtml'
 
 
 def test_attributes(attributes):
