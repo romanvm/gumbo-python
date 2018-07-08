@@ -125,7 +125,7 @@ namespace gumbo_python {
 
     std::string str() const override { return "<" + std::string(tag_name_) + ">"; }
 
-    int tag_namespace() { return node_->v.element.tag_namespace; }
+    int tag_namespace() const { return node_->v.element.tag_namespace; }
   };
 
   class Text : public Node {
