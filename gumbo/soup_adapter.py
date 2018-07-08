@@ -1,11 +1,20 @@
 from bs4 import BeautifulSoup, Tag, NavigableString, CData, Comment
+from bs4.element import Doctype
 from . import _gumbo
 
 __all__ = ['get_soup']
 
 
 def _add_document(soup, node, soup_listing):
-    pass
+    if node.has_doctype:
+        doctype = Doctype.for_name_and_ids(
+            node.doctype,
+            node.public_identifier,
+            node.system_identifier
+        )
+        doctype.offset = node.offset
+        soup.object_was_parsed(doctype)
+        soup_listing.append(doctype)
 
 
 def _add_element(soup, element, soup_listing):
