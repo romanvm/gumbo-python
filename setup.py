@@ -99,9 +99,9 @@ setup(
     packages=['gumbo'],
     ext_modules=ext_modules,
     setup_requires=['pytest-runner'],
-    install_requires=['bs4'],
+    install_requires=[],
     # test_suite='tests_gumbo',
-    tests_require=['pytest'],
+    tests_require=['pytest', 'bs4'],
     cmdclass={'build_ext': BuildExt},
     zip_safe=False,
 )
