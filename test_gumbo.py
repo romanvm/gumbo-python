@@ -1,7 +1,8 @@
 import pytest
 import gumbo
 
-HTML = b'''<!DOCTYPE html>
+HTML = b'''<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+    "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 <!-- top-level-comment -->
 <html lang="en">
 <head>
@@ -61,6 +62,8 @@ def test_document(document):
     assert document.doctype == 'html'
     assert document.offset == 0
     assert document.has_doctype
+    assert document.public_identifier == '-//W3C//DTD XHTML 1.1//EN'
+    assert document.system_identifier == 'http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd'
     document.children
     assert str(document) == '<!DOCTYPE html>'
 
@@ -72,7 +75,7 @@ def test_tag(root_tag):
     assert root_tag.tag_name == 'html'
     assert root_tag.attributes
     assert root_tag.children
-    assert root_tag.offset == 43
+    assert root_tag.offset == 129
     assert str(root_tag) == '<html>'
     assert root_tag.tag_namespace == gumbo.GUMBO_NAMESPACE_HTML
     assert gumbo.TAG_NAMESPACES[root_tag.tag_namespace] == 'http://www.w3.org/1999/xhtml'

@@ -107,7 +107,12 @@ namespace gumbo_python {
 
     std::string str() const override { return "<!DOCTYPE " + std::string(node_->v.document.name) + ">"; }
 
+    /// True if there was an explicit doctype token as opposed to it being omitted.
     bool has_doctype() const { return node_->v.document.has_doctype; }
+
+    // Fields from the doctype token, copied verbatim.
+    const char* public_identifier() const { return node_->v.document.public_identifier; }
+    const char* system_identifier() const { return node_->v.document.system_identifier; }
   };
 
   class Tag : public TagNode {
