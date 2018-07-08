@@ -106,6 +106,8 @@ namespace gumbo_python {
     const char* doctype() const { return node_->v.document.name; }
 
     std::string str() const override { return "<!DOCTYPE " + std::string(node_->v.document.name) + ">"; }
+
+    bool has_doctype() const { return node_->v.document.has_doctype; }
   };
 
   class Tag : public TagNode {

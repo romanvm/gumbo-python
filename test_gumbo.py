@@ -60,6 +60,7 @@ def test_document(document):
     assert document.type == gumbo.GUMBO_NODE_DOCUMENT
     assert document.doctype == 'html'
     assert document.offset == 0
+    assert document.has_doctype
     document.children
     assert str(document) == '<!DOCTYPE html>'
 

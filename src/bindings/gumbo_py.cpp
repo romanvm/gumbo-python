@@ -74,6 +74,7 @@ PYBIND11_MODULE(_gumbo, m) {
 
   py::class_<Document, TagNode>(m, "Document")
     .def_property_readonly("doctype", &Document::doctype)
+    .def_property_readonly("has_doctype", &Document::has_doctype)
     .def("__str__", &Document::str)
     ;
 
