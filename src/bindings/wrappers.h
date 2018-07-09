@@ -109,7 +109,7 @@ namespace gumbo_python {
     explicit Document(GumboNode* node) : TagNode(node, &node->v.document.children) {}
 
     /// Get document doctype. Returns empty string if HTML has no doctype.
-    const char* doctype() const { return node_->v.document.name; }
+    const char* name() const { return node_->v.document.name; }
 
     std::string str() const override { return "<!DOCTYPE " + std::string(node_->v.document.name) + ">"; }
 

@@ -8,7 +8,7 @@ __all__ = ['get_soup']
 def _add_document(soup, node, soup_listing):
     if node.has_doctype:
         doctype = Doctype.for_name_and_ids(
-            node.doctype,
+            node.name,
             node.public_identifier,
             node.system_identifier
         )

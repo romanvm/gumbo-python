@@ -67,7 +67,7 @@ def test_document(document):
     assert document.parent is None
     assert document.is_tag
     assert document.type == gumbo.GUMBO_NODE_DOCUMENT
-    assert document.doctype == 'html'
+    assert document.name == 'html'
     assert document.offset == 0
     assert document.has_doctype
     assert document.public_identifier == '-//W3C//DTD XHTML 1.1//EN'
