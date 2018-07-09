@@ -118,7 +118,7 @@ setup(
     ext_modules=ext_modules,
     setup_requires=['pybind11>=2.2', 'pytest-runner'],
     install_requires=[],
-    # test_suite='tests_gumbo',
+    # test_suite='tests',
     tests_require=['pytest', 'bs4'],
     cmdclass={'build_ext': BuildExt},
     zip_safe=False,
