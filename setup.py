@@ -7,6 +7,15 @@ import setuptools
 __version__ = '0.0.1'
 
 this_dir = os.path.dirname(os.path.abspath(__file__))
+src_dir = os.path.join(this_dir, 'src')
+
+
+def find_sources(src_dir):
+    sources = []
+    for item in os.listdir(src_dir):
+        if os.path.isfile(item) and os.path.splitext(item)[1].lower() in ('.c', '.cpp'):
+            sources.append(item)
+    return sources
 
 
 class get_pybind_include(object):
@@ -26,26 +35,15 @@ class get_pybind_include(object):
 ext_modules = [
     Extension(
         'gumbo._gumbo',
-        sources= [
-            'src/gumbo/attribute.c',
-            'src/gumbo/char_ref.c',
-            'src/gumbo/error.c',
-            'src/gumbo/parser.c',
-            'src/gumbo/string_buffer.c',
-            'src/gumbo/string_piece.c',
-            'src/gumbo/tag.c',
-            'src/gumbo/tokenizer.c',
-            'src/gumbo/utf8.c',
-            'src/gumbo/util.c',
-            'src/gumbo/vector.c',
-            'src/bindings/wrappers.cpp',
-            'src/bindings/gumbo_py.cpp',
-            ],
+        sources=(
+            find_sources(os.path.join(src_dir, 'gumbo')) +
+            find_sources(os.path.join(src_dir, 'bindings'))
+        ),
         include_dirs=[
             # Path to pybind11 headers
             get_pybind_include(),
             get_pybind_include(user=True),
-            os.path.join(this_dir, 'src'),
+            src_dir,
         ],
         language='c++'
     ),
