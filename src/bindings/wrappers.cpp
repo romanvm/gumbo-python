@@ -42,6 +42,11 @@ array<string, 4> attr_namespace_urls = {
 #pragma endregion
 
 #pragma region NodeVector
+  NodeVector* NodeVector::iter() {
+    curr_index_ = 0;
+    return this;
+  }
+
   node_ptr NodeVector::next() {
     if (curr_index_ >= vector_->length)
       throw py::stop_iteration();

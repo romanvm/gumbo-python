@@ -33,7 +33,7 @@ namespace gumbo_python {
     explicit NodeVector(GumboVector* vector) : vector_(vector) {}
 
     /// For Python __iter__ method
-    NodeVector* iter() { return this; }
+    NodeVector* iter();
 
     /// For Python __next__ method
     node_ptr next();
