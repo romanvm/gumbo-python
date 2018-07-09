@@ -209,5 +209,7 @@ venv.bak/
 .vscode/
 
 # Misc.
- *.sqlite
- *.sqlite3
+*.sqlite
+*.sqlite3
+temp/
+tmp/
