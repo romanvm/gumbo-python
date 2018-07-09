@@ -63,6 +63,20 @@ array<string, 4> attr_namespace_urls = {
 #pragma endregion
 
 #pragma region AttributeMap
+  AttributeMap* AttributeMap::iter() {
+    curr_index_ = 0;
+    return this;
+  }
+
+  pair<const char*, const char*> AttributeMap::next() {
+    if (curr_index_ >= attrs_->length)
+      throw py::stop_iteration();
+    GumboAttribute* attr_pair = static_cast<GumboAttribute*>(attrs_->data[curr_index_]);
+    pair<const char*, const char*> item = make_pair(attr_pair->name, attr_pair->value);
+    ++curr_index_;
+    return item;
+  }
+
   const char* AttributeMap::get_item(const char* attr) const {
     GumboAttribute* attr_pair = gumbo_get_attribute(attrs_, attr);
     if (!attr_pair)

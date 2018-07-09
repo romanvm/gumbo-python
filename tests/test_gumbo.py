@@ -37,6 +37,7 @@ def test_attributes(attributes):
     assert 'foo' not in attributes
     assert attributes.get('foo') is None
     assert len(attributes) == 3
+    assert len([(attr, value) for attr, value in attributes]) == 3
     assert attributes.as_dict() == {
         'xmlns': 'http://www.w3.org/1999/xhtml/',
         'xml:lang': 'en',

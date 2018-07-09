@@ -70,6 +70,8 @@ PYBIND11_MODULE(_gumbo, m) {
     .def("get", &AttributeMap::get)
     .def("get_namespace", &AttributeMap::get_namespace)
     .def("as_dict", &AttributeMap::as_dict)
+    .def("__iter__", &AttributeMap::iter, py::return_value_policy::reference_internal)
+    .def("__next__", &AttributeMap::next)
     .def("__getitem__", &AttributeMap::get_item)
     .def("__contains__", &AttributeMap::contains)
     .def("__len__", &AttributeMap::len)

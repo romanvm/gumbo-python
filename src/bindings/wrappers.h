@@ -48,9 +48,14 @@ namespace gumbo_python {
   class AttributeMap {
   private:
     GumboVector* attrs_;
+    unsigned int curr_index_ = 0;
 
   public:
     explicit AttributeMap(GumboVector* attrs) : attrs_(attrs) {}
+
+    AttributeMap* iter();
+
+    std::pair<const char*, const char*> next();
 
     const char* get_item(const char* attr) const;
 
