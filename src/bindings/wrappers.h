@@ -161,7 +161,7 @@ namespace gumbo_python {
   public:
     explicit Output(const char* html) { output_ = gumbo_parse(html); }
 
-    ~Output() { gumbo_destroy_output(&kGumboDefaultOptions, output_); }
+    ~Output() { gumbo_destroy_output(output_); }
 
     /// The root <html> node
     node_ptr root() const { return make_node(output_->root); }

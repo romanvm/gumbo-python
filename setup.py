@@ -10,9 +10,10 @@ this_dir = os.path.dirname(os.path.abspath(__file__))
 src_dir = os.path.join(this_dir, 'src')
 
 
-def find_sources(src_dir):
+def find_sources(path):
     sources = []
-    for item in os.listdir(src_dir):
+    for item in os.listdir(path):
+        item = os.path.join(path, item)
         if os.path.isfile(item) and os.path.splitext(item)[1].lower() in ('.c', '.cpp'):
             sources.append(item)
     return sources
@@ -35,10 +36,7 @@ class get_pybind_include(object):
 ext_modules = [
     Extension(
         'gumbo._gumbo',
-        sources=(
-            find_sources(os.path.join(src_dir, 'gumbo')) +
-            find_sources(os.path.join(src_dir, 'bindings'))
-        ),
+        sources=find_sources(os.path.join(src_dir, 'gumbo')) + find_sources(os.path.join(src_dir, 'bindings')),
         include_dirs=[
             # Path to pybind11 headers
             get_pybind_include(),
