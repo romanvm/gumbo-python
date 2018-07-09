@@ -13,7 +13,7 @@ def test_document(document):
     assert document.has_doctype
     assert document.public_identifier == '-//W3C//DTD XHTML 1.1//EN'
     assert document.system_identifier == 'http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd'
-    document.children
+    assert document.children
     assert str(document) == '<!DOCTYPE html>'
 
 
