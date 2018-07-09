@@ -20,10 +20,18 @@ PYBIND11_MODULE(_gumbo, m) {
     "GUMBO_NAMESPACE_SVG",
     "GUMBO_NAMESPACE_MATHML",
     "TAG_NAMESPACES",
+    "GUMBO_ATTR_NAMESPACE_NONE",
+    "GUMBO_ATTR_NAMESPACE_XLINK",
+    "GUMBO_ATTR_NAMESPACE_XML",
+    "GUMBO_ATTR_NAMESPACE_XMLNS",
+    "ATTR_NAMESPACE_VALUES",
+    "ATTR_NAMESPACE_URLS",
     "parse"
   };
 
   m.attr("TAG_NAMESPACES") = tag_namespaces;
+  m.attr("ATTR_NAMESPACE_VALUES") = attr_namespace_values;
+  m.attr("ATTR_NAMESPACE_URLS") = attr_namespace_urls;
 
   py::enum_<GumboNodeType>(m, "GumboNodeType", py::arithmetic(), "Gumbo node types")
     .value("GUMBO_NODE_DOCUMENT", GumboNodeType::GUMBO_NODE_DOCUMENT)
@@ -43,6 +51,14 @@ PYBIND11_MODULE(_gumbo, m) {
     .export_values()
     ;
 
+  py::enum_<GumboAttributeNamespaceEnum>(m, "GumboAttributeNamespaceEnum", py::arithmetic(), "Gumbo attribute namespace types")
+    .value("GUMBO_ATTR_NAMESPACE_NONE", GumboAttributeNamespaceEnum::GUMBO_ATTR_NAMESPACE_NONE)
+    .value("GUMBO_ATTR_NAMESPACE_XLINK", GumboAttributeNamespaceEnum::GUMBO_ATTR_NAMESPACE_XLINK)
+    .value("GUMBO_ATTR_NAMESPACE_XML", GumboAttributeNamespaceEnum::GUMBO_ATTR_NAMESPACE_XML)
+    .value("GUMBO_ATTR_NAMESPACE_XMLNS", GumboAttributeNamespaceEnum::GUMBO_ATTR_NAMESPACE_XMLNS)
+    .export_values()
+    ;
+
   py::class_<NodeVector>(m, "NodeVector")
     .def("__iter__", &NodeVector::iter, py::return_value_policy::reference_internal)
     .def("__next__", &NodeVector::next)
@@ -52,6 +68,7 @@ PYBIND11_MODULE(_gumbo, m) {
 
   py::class_<AttributeMap>(m, "AttributeMap")
     .def("get", &AttributeMap::get)
+    .def("get_namespace", &AttributeMap::get_namespace)
     .def("as_dict", &AttributeMap::as_dict)
     .def("__getitem__", &AttributeMap::get_item)
     .def("__contains__", &AttributeMap::contains)
@@ -73,7 +90,7 @@ PYBIND11_MODULE(_gumbo, m) {
     ;
 
   py::class_<Document, TagNode>(m, "Document")
-    .def_property_readonly("doctype", &Document::doctype)
+    .def_property_readonly("name", &Document::doctype)
     .def_property_readonly("has_doctype", &Document::has_doctype)
     .def_property_readonly("public_identifier", &Document::public_identifier)
     .def_property_readonly("system_identifier", &Document::system_identifier)

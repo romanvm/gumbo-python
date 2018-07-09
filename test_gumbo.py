@@ -17,7 +17,7 @@ HTML = b'''<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
         <strong>Fusce sed enim ac urna<br>tincidunt egestas sed nec urna.</strong>
     </p>
     <p id="p3" class="cdata"><![CDATA[Sed efficitur bibendum euismod.]]></p>
-    <p xmlns:xlink="http://www.w3.org/xlink" class="spam" xlink:href="http://www.google.com">
+    <p xmlns:xlink="http://www.w3.org/xlink" class="namespace" xlink:href="http://www.google.com">
         This is used to test attribute namespaces.
     </p>
 </body>
@@ -49,7 +49,12 @@ def comment():
 
 @pytest.fixture
 def attributes():
-    return root_tag().attributes
+    return output.root.attributes
+
+
+@pytest.fixture
+def attributes_with_namespace():
+    return output.root.children[2].children[11].attributes
 
 
 @pytest.fixture
@@ -98,7 +103,15 @@ def test_attributes(attributes):
         }
 
 
-def test_chidlren(children):
+def test_attributes_with_namespace(attributes_with_namespace):
+    # Attribute namespace parsing seems broken in Gumbo and I always get 0
+    namespace = attributes_with_namespace.get_namespace('xlink:href')
+    assert namespace == gumbo.GUMBO_ATTR_NAMESPACE_NONE
+    assert gumbo.ATTR_NAMESPACE_VALUES[namespace] == 'none'
+    assert gumbo.ATTR_NAMESPACE_URLS[namespace] == 'http://www.w3.org/1999/xhtml'
+
+
+def test_children(children):
     assert len(children) == 3
     assert children[1]
     iterator = iter(children)

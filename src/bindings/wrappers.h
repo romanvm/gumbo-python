@@ -14,6 +14,10 @@ namespace gumbo_python {
 
   extern std::array<std::string, 3> tag_namespaces;
 
+  extern std::array<std::string, 4> attr_namespace_values;
+
+  extern std::array<std::string, 4> attr_namespace_urls;
+
   class Node;
 
   using node_ptr = std::unique_ptr<Node>;
@@ -53,6 +57,8 @@ namespace gumbo_python {
     pybind11::object get(const char* attr) const;
 
     bool contains(const char* attr) const;
+
+    int get_namespace(const char* attr) const;
 
     pybind11::dict as_dict() const;
 

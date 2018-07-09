@@ -12,6 +12,20 @@ array<string, 3> tag_namespaces = {
   "http://www.w3.org/1998/Math/MathML"
 };
 
+array<string, 4> attr_namespace_values = {
+  "none",
+  "xlink",
+  "xml",
+  "xmlns"
+};
+
+array<string, 4> attr_namespace_urls = {
+  "http://www.w3.org/1999/xhtml",
+  "http://www.w3.org/1999/xlink",
+  "http://www.w3.org/XML/1998/namespace",
+  "http://www.w3.org/2000/xmlns"
+};
+
 #pragma endregion
 
 #pragma region make_node
@@ -56,6 +70,13 @@ array<string, 3> tag_namespaces = {
     if (!attr_pair)
       return py::none();
     return py::str(attr_pair->value);
+  }
+
+  int AttributeMap::get_namespace(const char* attr) const {
+    GumboAttribute* attr_pair = gumbo_get_attribute(attrs_, attr);
+    if (!attr_pair)
+      throw py::key_error(attr);
+    return attr_pair->attr_namespace;
   }
 
   bool AttributeMap::contains(const char* attr) const {
