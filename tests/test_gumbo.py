@@ -73,3 +73,8 @@ def test_comment(comment):
     assert comment.type == gumbo.GUMBO_NODE_COMMENT
     assert comment.text == ' body comment '
     assert str(comment) == '<!-- body comment -->'
+
+
+def test_parse_fragment():
+    output = gumbo.parse_fragment(b'<p>Lorem ipsum</p>')
+    assert len(output.root.children) == 1

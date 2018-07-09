@@ -14,6 +14,8 @@ namespace gumbo_python {
 
   extern std::array<std::string, 3> tag_namespaces;
 
+  extern std::unordered_map<const char*, GumboNamespaceEnum> tag_namespace_map;
+
   extern std::array<std::string, 4> attr_namespace_values;
 
   extern std::array<std::string, 4> attr_namespace_urls;
@@ -161,6 +163,8 @@ namespace gumbo_python {
   public:
     explicit Output(const char* html) { output_ = gumbo_parse(html); }
 
+    Output(const char* html, const char* fragment_ctx, const char* fragment_namespace);
+
     ~Output() { gumbo_destroy_output(output_); }
 
     /// The root <html> node
@@ -171,4 +175,7 @@ namespace gumbo_python {
   };
 
   std::unique_ptr<Output> parse(const char* html);
+
+  std::unique_ptr<Output> parse_fragment(const char* html, const char* container,
+    const char* fragment_namespace);
 }

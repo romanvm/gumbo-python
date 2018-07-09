@@ -12,6 +12,12 @@ array<string, 3> tag_namespaces = {
   "http://www.w3.org/1998/Math/MathML"
 };
 
+std::unordered_map<const char*, GumboNamespaceEnum> tag_namespace_map = {
+  {"html", GUMBO_NAMESPACE_HTML},
+  {"svg", GUMBO_NAMESPACE_SVG},
+  {"mathml", GUMBO_NAMESPACE_MATHML}
+};
+
 array<string, 4> attr_namespace_values = {
   "none",
   "xlink",
@@ -138,9 +144,24 @@ array<string, 4> attr_namespace_urls = {
   }
 #pragma endregion
 
+#pragma region Output
+  Output::Output(const char* html, const char* fragment_ctx, const char* fragment_namespace) {
+      output_ = gumbo_parse_fragment(&kGumboDefaultOptions, html, strlen(html),
+        gumbo_tag_enum(fragment_ctx),
+        tag_namespace_map[fragment_namespace]);
+    }
+#pragma endregion
+
 #pragma region parse;
   unique_ptr<Output> parse(const char* html) {
     return make_unique<Output>(html);
 }
+#pragma endregion
+
+#pragma region parse_fragment
+  unique_ptr<Output> parse_fragment(const char* html, const char* container,
+    const char* fragment_namespace) {
+    return make_unique<Output>(html, container, fragment_namespace);
+  }
 #pragma endregion
 }

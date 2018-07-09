@@ -26,7 +26,8 @@ PYBIND11_MODULE(_gumbo, m) {
     "GUMBO_ATTR_NAMESPACE_XMLNS",
     "ATTR_NAMESPACE_VALUES",
     "ATTR_NAMESPACE_URLS",
-    "parse"
+    "parse",
+    "parse_fragment"
   };
 
   m.attr("TAG_NAMESPACES") = tag_namespaces;
@@ -117,4 +118,7 @@ PYBIND11_MODULE(_gumbo, m) {
     ;
 
   m.def("parse", &parse);
+
+  m.def("parse_fragment", &parse_fragment,
+    py::arg("html"), py::arg("container") = "div", py::arg("namespace") = "html");
 }
