@@ -29,20 +29,45 @@
 // TODO(jdtang): This should be elsewhere, but there's no .c file for
 // SourcePositions and yet the constant needs some linkage, so this is as good
 // as any.
-const GumboSourcePosition kGumboEmptySourcePosition = {0, 0, 0};
+const GumboSourcePosition kGumboEmptySourcePosition = { 0, 0, 0 };
 
-void* gumbo_parser_allocate(GumboParser* parser, size_t num_bytes) {
-  return parser->_options->allocator(parser->_options->userdata, num_bytes);
+/*
+ * Default memory management helpers;
+ * set to system's realloc and free by default
+ */
+void *(* gumbo_user_allocator)(void *, size_t) = realloc;
+void (* gumbo_user_free)(void *) = free;
+
+void gumbo_memory_set_allocator(void *(*allocator_p)(void *, size_t))
+{
+  gumbo_user_allocator = allocator_p ? allocator_p : realloc;
 }
 
-void gumbo_parser_deallocate(GumboParser* parser, void* ptr) {
-  parser->_options->deallocator(parser->_options->userdata, ptr);
+void gumbo_memory_set_free(void (*free_p)(void *))
+{
+  gumbo_user_free = free_p ? free_p : free;
 }
 
-char* gumbo_copy_stringz(GumboParser* parser, const char* str) {
-  char* buffer = gumbo_parser_allocate(parser, strlen(str) + 1);
-  strcpy(buffer, str);
-  return buffer;
+bool gumbo_isspace(unsigned char ch) 
+{
+  switch(ch) {
+    case ' ':
+    case '\f':
+    case '\r':
+    case '\n':
+    case '\t':
+      return true;
+    default:
+      return false;
+  }
+}
+
+bool gumbo_isalnum(unsigned char ch) 
+{
+  if ('a' <= ch && ch <= 'z') return true;
+  if ('A' <= ch && ch <= 'Z') return true;
+  if ('0' <= ch && ch <= '9') return true;
+  return false;
 }
 
 // Debug function to trace operation of the parser.  Pass --copts=-DGUMBO_DEBUG

@@ -76,6 +76,7 @@ typedef struct {
  */
 extern const GumboSourcePosition kGumboEmptySourcePosition;
 
+
 /**
  * A struct representing a string or part of a string.  Strings within the
  * parser are represented by a char* and a length; the char* points into
@@ -110,6 +111,7 @@ bool gumbo_string_equals(
 bool gumbo_string_equals_ignore_case(
     const GumboStringPiece* str1, const GumboStringPiece* str2);
 
+
 /**
  * A simple vector implementation.  This stores a pointer to a data array and a
  * length.  All elements are stored as void*; client code must cast to the
@@ -141,6 +143,7 @@ extern const GumboVector kGumboEmptyVector;
  */
 int gumbo_vector_index_of(GumboVector* vector, const void* element);
 
+
 /**
  * An enum for all the tags defined in the HTML5 standard.  These correspond to
  * the tag names themselves.  Enum constants exist only for tags which appear in
@@ -154,8 +157,8 @@ int gumbo_vector_index_of(GumboVector* vector, const void* element);
  * strings.
  */
 typedef enum {
-// Load all the tags from an external source, generated from tag.in.
-#include "tag_enum.h"
+  // Load all the tags from an external source, generated from tag.in.
+# include "tag_enum.h"
   // Used for all tags that don't have special handling in HTML.  Add new tags
   // to the end of tag.in so as to preserve backwards-compatibility.
   GUMBO_TAG_UNKNOWN,
@@ -202,7 +205,7 @@ const char* gumbo_normalize_svg_tagname(const GumboStringPiece* tagname);
  * enum. The `tag` version expects `tagname` to be NULL-terminated
  */
 GumboTag gumbo_tag_enum(const char* tagname);
-GumboTag gumbo_tagn_enum(const char* tagname, unsigned int length);
+GumboTag gumbo_tagn_enum(const char* tagname, int length);
 
 /**
  * Attribute namespaces.
@@ -315,9 +318,7 @@ typedef enum {
  */
 typedef struct GumboInternalNode GumboNode;
 
-/**
- * http://www.whatwg.org/specs/web-apps/current-work/complete/dom.html#quirks-mode
- */
+/** http://www.whatwg.org/specs/web-apps/current-work/complete/dom.html#quirks-mode */
 typedef enum {
   GUMBO_DOCTYPE_NO_QUIRKS,
   GUMBO_DOCTYPE_QUIRKS,
@@ -414,6 +415,7 @@ typedef enum {
    */
   GUMBO_INSERTION_FOSTER_PARENTED = 1 << 10,
 } GumboParseFlags;
+
 
 /**
  * Information specific to document nodes.
@@ -522,7 +524,7 @@ struct GumboInternalNode {
   GumboNode* parent;
 
   /** The index within the parent's children vector of this node. */
-  size_t index_within_parent;
+  unsigned int index_within_parent;
 
   /**
    * A bitvector of flags containing information about why this element was
@@ -533,9 +535,9 @@ struct GumboInternalNode {
 
   /** The actual node data. */
   union {
-    GumboDocument document;  // For GUMBO_NODE_DOCUMENT.
-    GumboElement element;    // For GUMBO_NODE_ELEMENT.
-    GumboText text;          // For everything else.
+    GumboDocument document;      // For GUMBO_NODE_DOCUMENT.
+    GumboElement element;        // For GUMBO_NODE_ELEMENT.
+    GumboText text;              // For everything else.
   } v;
 };
 
@@ -561,23 +563,17 @@ typedef void (*GumboDeallocatorFunction)(void* userdata, void* ptr);
  * Use kGumboDefaultOptions for sensible defaults, and only set what you need.
  */
 typedef struct GumboInternalOptions {
-  /** A memory allocator function.  Default: malloc. */
-  GumboAllocatorFunction allocator;
-
-  /** A memory deallocator function. Default: free. */
-  GumboDeallocatorFunction deallocator;
-
-  /**
-   * An opaque object that's passed in as the first argument to all callbacks
-   * used by this library.  Default: NULL.
-   */
-  void* userdata;
-
   /**
    * The tab-stop size, for computing positions in source code that uses tabs.
    * Default: 8.
    */
   int tab_stop;
+
+  /**
+   * Whether or not to use xhtml parsing rules on non-void self-closing empty tags
+   * Default: false.
+   */
+  bool use_xhtml_rules;
 
   /**
    * Whether or not to stop parsing when the first error is encountered.
@@ -593,29 +589,6 @@ typedef struct GumboInternalOptions {
    * Default: -1
    */
   int max_errors;
-
-  /**
-   * The fragment context for parsing:
-   * https://html.spec.whatwg.org/multipage/syntax.html#parsing-html-fragments
-   *
-   * If GUMBO_TAG_LAST is passed here, it is assumed to be "no fragment", i.e.
-   * the regular parsing algorithm.  Otherwise, pass the tag enum for the
-   * intended parent of the parsed fragment.  We use just the tag enum rather
-   * than a full node because that's enough to set all the parsing context we
-   * need, and it provides some additional flexibility for client code to act as
-   * if parsing a fragment even when a full HTML tree isn't available.
-   *
-   * Default: GUMBO_TAG_LAST
-   */
-  GumboTag fragment_context;
-
-  /**
-   * The namespace for the fragment context.  This lets client code
-   * differentiate between, say, parsing a <title> tag in SVG vs. parsing it in
-   * HTML.
-   * Default: GUMBO_NAMESPACE_HTML
-   */
-  GumboNamespaceEnum fragment_namespace;
 } GumboOptions;
 
 /** Default options struct; use this with gumbo_parse_with_options. */
@@ -661,8 +634,34 @@ GumboOutput* gumbo_parse(const char* buffer);
 GumboOutput* gumbo_parse_with_options(
     const GumboOptions* options, const char* buffer, size_t buffer_length);
 
+/**
+ * Parse a chunk of HTML with the given fragment context. If `fragment_ctx`
+ * is `GUMBO_TAG_LAST`, the fragment will be parsed as a full document.
+ */
+GumboOutput* gumbo_parse_fragment(
+    const GumboOptions* options, const char* buffer, size_t length,
+    const GumboTag fragment_ctx, const GumboNamespaceEnum fragment_namespace);
+
 /** Release the memory used for the parse tree & parse errors. */
-void gumbo_destroy_output(const GumboOptions* options, GumboOutput* output);
+void gumbo_destroy_output(GumboOutput* output);
+
+/** Allocate a new freestanding node */
+GumboNode *gumbo_create_node(GumboNodeType type);
+
+/** Release the memory used for a single node */
+void gumbo_destroy_node(GumboNode *node);
+
+/**
+ * Set the memory allocator to be used by the library.
+ * allocator_p needs to be a `realloc`-compatible API
+ */
+void gumbo_memory_set_allocator(void *(*allocator_p)(void *, size_t));
+
+/**
+ * Set the memory free function to be used by the library.
+ * free_p needs to be a `free`-compatible API
+ */
+void gumbo_memory_set_free(void (*free_p)(void *));
 
 #ifdef __cplusplus
 }
