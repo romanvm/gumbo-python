@@ -1,5 +1,6 @@
 """Test BeatifulSoup4 adapter"""
 
+import gumbo
 from .fixtures import HTML
 
 
