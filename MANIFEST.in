@@ -1,0 +1,4 @@
+include *.rst *.md *.txt
+recursive-include src *
+recursive-include tests *
+global-exclude *.pyc __pycache__ *.log
