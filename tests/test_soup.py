@@ -1,7 +1,9 @@
 """Test BeatifulSoup4 adapter"""
 
-from .fixtures import *
+from .fixtures import HTML
 
 
 def test_soup():
-    assert gumbo.get_soup(HTML)
+    soup = gumbo.get_soup(HTML)
+    p_tags = soup.find_all('p')
+    assert len(p_tags) == 4

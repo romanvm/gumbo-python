@@ -1,5 +1,5 @@
 from bs4 import BeautifulSoup, Tag, NavigableString, CData, Comment
-from bs4.element import Doctype
+from bs4.element import Doctype, NamespacedAttribute, whitespace_re
 from . import _gumbo
 
 __all__ = ['get_soup']
@@ -17,8 +17,31 @@ def _add_document(soup, node, soup_listing):
         soup_listing.append(doctype)
 
 
+def _convert_attrs(element_attrs):
+    def maybe_namespace(attr, value):
+        attr_namespace = element_attrs.get_namespace(attr)
+        if attr_namespace != _gumbo.GUMBO_ATTR_NAMESPACE_NONE:
+            prefix = (_gumbo.ATTR_NAMESPACE_VALUES[attr_namespace]
+                        if attr != 'xmlns' else None)
+            nsurl = _gumbo.ATTR_NAMESPACE_URLS[attr_namespace]
+            return NamespacedAttribute(prefix, attr, nsurl)
+        else:
+            return attr
+    def maybe_value_list(value):
+        if ' ' in value:
+            value = whitespace_re.split(value)
+        return value
+    return {maybe_namespace(attr, value): maybe_value_list(value)
+            for attr, value in element_attrs}
+
+
 def _add_element(soup, element, soup_listing):
-    tag = Tag(name=element.tag_name, attrs=element.attributes.as_dict())
+    tag = Tag(
+        parser=soup,
+        name=element.tag_name,
+        namespace=_gumbo.TAG_NAMESPACES[element.tag_namespace],
+        attrs=element.attributes.as_dict()
+        )
     soup_listing.append(tag)
     for child in element.children:
         tag.append(_add_node(soup, child, soup_listing))
@@ -61,10 +84,11 @@ def _add_node(soup, node, soup_listing):
 
 
 def get_soup(html):
-    doc = _gumbo.parse(html)
+    output = _gumbo.parse(html)
     soup = BeautifulSoup(features='html.parser')
     soup_listing = []
-    soup.append(_add_node(soup, doc.root, soup_listing))
+    _add_document(soup, output.document, soup_listing)
+    soup.append(_add_node(soup, output.root, soup_listing))
     soup.offset = -1
     _add_next_prev_pointers(soup_listing)
     return soup
