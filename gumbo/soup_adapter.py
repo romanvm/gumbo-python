@@ -39,7 +39,7 @@ def _add_element(soup, element, soup_listing):
         parser=soup,
         name=element.tag_name,
         namespace=_gumbo.TAG_NAMESPACES[element.tag_namespace],
-        attrs=element.attributes.as_dict()
+        attrs=_convert_attrs(element.attributes)
         )
     soup_listing.append(tag)
     for child in element.children:
@@ -63,7 +63,7 @@ def _add_next_prev_pointers(soup_listing):
         nodes[0].previous_element = None
         nodes[-1].next_element = None
         for i, node in enumerate(nodes[1:-1], 1):
-            nodes[i-1].next_element = node
+            nodes[i - 1].next_element = node
             node.previous_element = nodes[i - 1]
 
 
