@@ -18,21 +18,20 @@ def _add_document(soup, node, soup_listing):
 
 
 def _convert_attrs(element_attrs):
-    def maybe_namespace(attr, value):
-        attr_namespace = element_attrs.get_namespace(attr)
-        if attr_namespace != _gumbo.GUMBO_ATTR_NAMESPACE_NONE:
-            prefix = (_gumbo.ATTR_NAMESPACE_VALUES[attr_namespace]
-                        if attr != 'xmlns' else None)
-            nsurl = _gumbo.ATTR_NAMESPACE_URLS[attr_namespace]
-            return NamespacedAttribute(prefix, attr, nsurl)
+    def maybe_namespace(attr):
+        if attr.namespace != _gumbo.GUMBO_ATTR_NAMESPACE_NONE:
+            prefix = (_gumbo.ATTR_NAMESPACE_VALUES[attr.namespace]
+                        if attr.name != 'xmlns' else None)
+            nsurl = _gumbo.ATTR_NAMESPACE_URLS[attr.namespace]
+            return NamespacedAttribute(prefix, attr.name, nsurl)
         else:
-            return attr
+            return attr.name
     def maybe_value_list(value):
         if ' ' in value:
             value = whitespace_re.split(value)
         return value
-    return {maybe_namespace(attr, value): maybe_value_list(value)
-            for attr, value in element_attrs}
+    return {maybe_namespace(attr): maybe_value_list(attr.value)
+            for attr in element_attrs}
 
 
 def _add_element(soup, element, soup_listing):

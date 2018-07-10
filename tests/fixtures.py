@@ -53,10 +53,5 @@ def attributes():
 
 
 @pytest.fixture
-def attributes_with_namespace():
-    return output.root.children[2].children[11].attributes
-
-
-@pytest.fixture
 def children():
     return root_tag().children

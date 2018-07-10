@@ -74,45 +74,30 @@ array<string, 4> attr_namespace_urls = {
     return this;
   }
 
-  pair<const char*, const char*> AttributeMap::next() {
+  Attribute AttributeMap::next() {
     if (curr_index_ >= attrs_->length)
       throw py::stop_iteration();
-    GumboAttribute* attr_pair = static_cast<GumboAttribute*>(attrs_->data[curr_index_]);
-    pair<const char*, const char*> item = make_pair(attr_pair->name, attr_pair->value);
+    GumboAttribute* attr = static_cast<GumboAttribute*>(attrs_->data[curr_index_]);
     ++curr_index_;
-    return item;
+    return Attribute(attr);
   }
 
-  const char* AttributeMap::get_item(const char* attr) const {
-    GumboAttribute* attr_pair = gumbo_get_attribute(attrs_, attr);
-    if (!attr_pair)
-      throw py::key_error(attr);
-    return attr_pair->value;
+  Attribute AttributeMap::get_item(const char* attr_name) const {
+    GumboAttribute* attr = gumbo_get_attribute(attrs_, attr_name);
+    if (!attr)
+      throw py::key_error(attr_name);
+    return Attribute(attr);
   }
 
-  py::object AttributeMap::get(const char* attr) const {
-    GumboAttribute* attr_pair = gumbo_get_attribute(attrs_, attr);
-    if (!attr_pair)
-      return py::none();
-    return py::str(attr_pair->value);
-  }
-
-  int AttributeMap::get_namespace(const char* attr) const {
-    GumboAttribute* attr_pair = gumbo_get_attribute(attrs_, attr);
-    if (!attr_pair)
-      throw py::key_error(attr);
-    return attr_pair->attr_namespace;
-  }
-
-  bool AttributeMap::contains(const char* attr) const {
-    return gumbo_get_attribute(attrs_, attr) != nullptr;
+  bool AttributeMap::contains(const char* attr_name) const {
+    return gumbo_get_attribute(attrs_, attr_name) != nullptr;
   }
 
   py::dict AttributeMap::as_dict() const {
     py::dict attr_dict;
     for (unsigned int i = 0; i < attrs_->length; ++i) {
-      GumboAttribute* attr_pair = static_cast<GumboAttribute*>(attrs_->data[i]);
-      attr_dict[attr_pair->name] = attr_pair->value;
+      GumboAttribute* attr = static_cast<GumboAttribute*>(attrs_->data[i]);
+      attr_dict[attr->name] = attr->value;
     }
     return attr_dict;
   }

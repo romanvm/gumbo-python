@@ -47,6 +47,22 @@ namespace gumbo_python {
     unsigned int len() const { return vector_->length; }
   };
 
+  class Attribute {
+  private:
+    GumboAttribute* attr_;
+
+  public:
+    explicit Attribute(GumboAttribute* attr) : attr_(attr) {}
+
+    const char* name() const { return attr_->name; }
+
+    const char* value() const { return attr_->value; }
+
+    int attr_namespace() const { return attr_->attr_namespace; }
+
+    std::string str() const { return "<Attribute " + std::string(attr_->name) + " = \"" + attr_->value + "\">"; }
+  };
+
   class AttributeMap {
   private:
     GumboVector* attrs_;
@@ -57,15 +73,11 @@ namespace gumbo_python {
 
     AttributeMap* iter();
 
-    std::pair<const char*, const char*> next();
+    Attribute next();
 
-    const char* get_item(const char* attr) const;
+    Attribute get_item(const char* attr_name) const;
 
-    pybind11::object get(const char* attr) const;
-
-    bool contains(const char* attr) const;
-
-    int get_namespace(const char* attr) const;
+    bool contains(const char* attr_name) const;
 
     pybind11::dict as_dict() const;
 

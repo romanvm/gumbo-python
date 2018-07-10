@@ -31,26 +31,25 @@ def test_tag(root_tag):
 
 
 def test_attributes(attributes):
+    lang = attributes['lang']
+    assert lang.name == 'lang'
+    assert lang.value == 'en-us'
+    assert lang.namespace == gumbo.GUMBO_ATTR_NAMESPACE_NONE
     assert 'lang' in attributes
-    assert attributes.get('lang') == 'en-us'
-    assert attributes['lang'] == 'en-us'
     assert 'foo' not in attributes
-    assert attributes.get('foo') is None
+    try:
+        attributes['foo']
+    except KeyError:
+        pass
+    else:
+        raise AssertionError('KeyError is not raised on a missing key!')
     assert len(attributes) == 3
-    assert len([(attr, value) for attr, value in attributes]) == 3
+    assert list(attributes)
     assert attributes.as_dict() == {
         'xmlns': 'http://www.w3.org/1999/xhtml/',
         'xml:lang': 'en',
         'lang': 'en-us'
         }
-
-
-def test_attributes_with_namespace(attributes_with_namespace):
-    # Attribute namespace parsing seems broken in Gumbo and I always get 0
-    namespace = attributes_with_namespace.get_namespace('xlink:href')
-    assert namespace == gumbo.GUMBO_ATTR_NAMESPACE_NONE
-    assert gumbo.ATTR_NAMESPACE_VALUES[namespace] == 'none'
-    assert gumbo.ATTR_NAMESPACE_URLS[namespace] == 'http://www.w3.org/1999/xhtml'
 
 
 def test_children(children):

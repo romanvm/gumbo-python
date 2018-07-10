@@ -67,9 +67,14 @@ PYBIND11_MODULE(_gumbo, m) {
     .def("__len__", &NodeVector::len)
     ;
 
+  py::class_<Attribute>(m, "Attribute")
+    .def_property_readonly("name", &Attribute::name)
+    .def_property_readonly("value", &Attribute::value)
+    .def_property_readonly("namespace", &Attribute::attr_namespace)
+    .def("__str__", &Attribute::str)
+    ;
+
   py::class_<AttributeMap>(m, "AttributeMap")
-    .def("get", &AttributeMap::get)
-    .def("get_namespace", &AttributeMap::get_namespace)
     .def("as_dict", &AttributeMap::as_dict)
     .def("__iter__", &AttributeMap::iter, py::return_value_policy::reference_internal)
     .def("__next__", &AttributeMap::next)
