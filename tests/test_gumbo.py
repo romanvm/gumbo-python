@@ -44,7 +44,8 @@ def test_attributes(attributes):
     else:
         raise AssertionError('KeyError is not raised on a missing key!')
     assert len(attributes) == 3
-    assert list(attributes)
+    iterator = iter(attributes)
+    assert next(iterator)
     assert attributes.as_dict() == {
         'xmlns': 'http://www.w3.org/1999/xhtml/',
         'xml:lang': 'en',
